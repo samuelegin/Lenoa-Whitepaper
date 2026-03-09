@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lenoa Whitepaper v0.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: rgba(201,168,76,0.15);
+    --blue: #4C7EC9;
+    --green: #3DBA72;
+    --red: #C94C4C;
+    --bg: #080809;
+    --surface: #0D0D11;
+    --surface2: #121218;
+    --border: rgba(201,168,76,0.12);
+    --border-strong: rgba(201,168,76,0.28);
+    --text: #EAE6DC;
+    --muted: #6B6760;
+    --mid: #9E9A94;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Geist', sans-serif;
+    --mono: 'Geist Mono', monospace;
+    --content: 760px;
+    --wide: 1100px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Noise overlay ─────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Sidebar nav ───────────────────────────────── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    border-right: 1px solid var(--border);
+    background: rgba(8,8,9,0.95);
+    backdrop-filter: blur(20px);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border: 1px solid var(--gold);
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--gold);
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .sidebar-logo-mark::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .sidebar-title {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .sidebar-sub {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .sidebar-section {
+    padding: 20px 0 8px;
+  }
+
+  .sidebar-section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 28px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 28px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    cursor: pointer;
+  }
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+  .nav-item.active { color: var(--gold); border-left-color: var(--gold); background: rgba(201,168,76,0.04); }
+
+  .nav-num {
+    font-size: 9px;
+    color: var(--muted);
+    min-width: 16px;
+    opacity: 0.5;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 20px 28px;
+    border-top: 1px solid var(--border);
+  }
+  .version-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .version-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── Main content ──────────────────────────────── */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Top bar ───────────────────────────────────── */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: 52px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,8,9,0.9);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 60px;
+  }
+  .topbar-breadcrumb {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .topbar-breadcrumb span { color: var(--gold); }
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .topbar-link {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: color 0.15s;
+  }
+  .topbar-link:hover { color: var(--gold); }
+  .topbar-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--gold);
+    border: none;
+    padding: 6px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .topbar-btn:hover { background: var(--gold-light); }
+
+  /* ── Content area ──────────────────────────────── */
+  .content-wrap {
+    max-width: var(--wide);
+    margin: 0 auto;
+    padding: 0 60px 120px;
+  }
+
+  /* ── Hero ──────────────────────────────────────── */
+  .hero {
+    padding: 80px 0 60px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .hero-eyebrow-line { width: 32px; height: 1px; background: var(--gold); }
+  .hero-eyebrow-text {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(52px, 6vw, 80px);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 20px;
+    max-width: 700px;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-family: var(--sans);
+    font-size: 16px;
+    color: var(--mid);
+    max-width: 580px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .hero-meta-item strong {
+    color: var(--mid);
+    font-weight: 500;
+  }
+
+  /* ── Abstract ──────────────────────────────────── */
+  .abstract-block {
+    border-left: 2px solid var(--gold);
+    padding: 28px 36px;
+    background: rgba(201,168,76,0.03);
+    margin: 56px 0 48px;
+  }
+  .abstract-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .abstract-text {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--text);
+  }
+
+  /* ── Section headings ──────────────────────────── */
+  .section {
+    padding: 64px 0 0;
+    scroll-margin-top: 80px;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  h2.section-title {
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.5vw, 40px);
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  h2.section-title em { font-style: italic; color: var(--gold); }
+
+  h3 {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    margin: 40px 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  p {
+    font-family: var(--sans);
+    font-size: 15px;
+    color: var(--mid);
+    line-height: 1.75;
+    margin-bottom: 18px;
+    max-width: var(--content);
+  }
+
+  strong { color: var(--text); font-weight: 500; }
+
+  /* ── Tables ────────────────────────────────────── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 28px 0;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border-strong);
+  }
+  thead th {
+    padding: 12px 18px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.015); }
+
+  tbody td {
+    padding: 12px 18px;
+    color: var(--mid);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  tbody td:first-child { color: var(--text); font-weight: 500; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    border: 1px solid;
+  }
+  .tag-blue  { border-color: rgba(76,126,201,0.4);  color: var(--blue);  background: rgba(76,126,201,0.06); }
+  .tag-green { border-color: rgba(61,186,114,0.4);  color: var(--green); background: rgba(61,186,114,0.06); }
+  .tag-gold  { border-color: rgba(201,168,76,0.4);  color: var(--gold);  background: rgba(201,168,76,0.06); }
+  .tag-red   { border-color: rgba(201,76,76,0.4);   color: var(--red);   background: rgba(201,76,76,0.06); }
+
+  /* ── Code blocks ───────────────────────────────── */
+  pre {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    overflow-x: auto;
+    margin: 28px 0;
+    position: relative;
+  }
+  pre::before {
+    content: attr(data-lang);
+    position: absolute;
+    top: 10px; right: 16px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--mid);
+  }
+  .kw  { color: var(--gold); }
+  .fn  { color: var(--blue); }
+  .str { color: var(--green); }
+  .cm  { color: var(--muted); font-style: italic; }
+  .num { color: #E8A87C; }
+
+  /* ── Callout boxes ─────────────────────────────── */
+  .callout {
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 28px 0;
+    position: relative;
+    background: var(--surface);
+  }
+  .callout::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -1px; left: 20px;
+    transform: translateY(-50%);
+    background: var(--bg);
+    padding: 0 8px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .callout p { margin: 0; font-size: 14px; }
+
+  .callout-blue  { border-color: rgba(76,126,201,0.3); }
+  .callout-blue::before { color: var(--blue); }
+  .callout-green { border-color: rgba(61,186,114,0.3); }
+  .callout-green::before { color: var(--green); }
+  .callout-gold  { border-color: rgba(201,168,76,0.35); }
+  .callout-gold::before { color: var(--gold); }
+
+  /* ── Flow diagram ──────────────────────────────── */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 32px 0;
+    overflow-x: auto;
+  }
+  .flow-step {
+    flex: 1;
+    min-width: 140px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 20px 18px;
+    position: relative;
+  }
+  .flow-step + .flow-step {
+    border-left: none;
+  }
+  .flow-step::after {
+    content: '›';
+    position: absolute;
+    right: -10px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--muted);
+    z-index: 2;
+    background: var(--bg);
+    padding: 0 2px;
+  }
+  .flow-step:last-child::after { display: none; }
+
+  .flow-num {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .flow-title {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .flow-desc {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ── NFT card pair ─────────────────────────────── */
+  .nft-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 32px 0;
+  }
+  .nft-card {
+    background: var(--surface);
+    padding: 0;
+    overflow: hidden;
+  }
+  .nft-card-header {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nft-card-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+  .nft-card-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .nft-card-body { padding: 0; }
+  .nft-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .nft-row:last-child { border-bottom: none; }
+  .nft-row-label { color: var(--muted); }
+  .nft-row-value { color: var(--text); font-weight: 500; }
+
+  /* ── Parameters grid ───────────────────────────── */
+  .params-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 32px 0;
+  }
+  .param-cell {
+    background: var(--surface);
+    padding: 24px 22px;
+  }
+  .param-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: block;
+  }
+  .param-value {
+    font-family: var(--serif);
+    font-size: 28px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .param-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── Oracle display ────────────────────────────── */
+  .oracle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 32px 0;
+  }
+  .oracle-cell {
+    background: var(--surface);
+    padding: 22px 20px;
+    text-align: center;
+  }
+  .oracle-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: block;
+  }
+  .oracle-role {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .oracle-price {
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--text);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .oracle-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--green);
+    letter-spacing: 0.08em;
+  }
+  .oracle-badge::before {
+    content: '';
+    display: block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  .oracle-median {
+    border: 1px solid var(--border-strong);
+    background: rgba(201,168,76,0.04);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 32px;
+  }
+  .oracle-median-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .oracle-median-value {
+    font-family: var(--serif);
+    font-size: 24px;
+    color: var(--gold);
+  }
+
+  /* ── Risk table ────────────────────────────────── */
+  .risk-bar-row td { vertical-align: middle; }
+  .risk-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 140px;
+  }
+  .risk-bar-track {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    position: relative;
+  }
+  .risk-bar-fill {
+    height: 100%;
+    position: absolute;
+    left: 0; top: 0;
+  }
+  .risk-bar-liq {
+    position: absolute;
+    right: 0; top: -4px;
+    width: 1px;
+    height: 11px;
+    background: rgba(201,76,76,0.5);
+  }
+
+  /* ── Contract architecture ─────────────────────── */
+  .contracts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 32px 0;
+  }
+  .contract-card {
+    background: var(--surface);
+    padding: 24px;
+  }
+  .contract-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gold);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .contract-desc {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--mid);
+    line-height: 1.6;
+    margin-bottom: 12px;
+    margin: 0;
+  }
+  .contract-functions {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .fn-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--blue);
+    border: 1px solid rgba(76,126,201,0.25);
+    padding: 2px 7px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Math formula ──────────────────────────────── */
+  .formula {
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    background: var(--surface);
+    margin: 24px 0;
+    text-align: center;
+  }
+  .formula-eq {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+  .formula-desc {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ── Divider ───────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 60px 0 0;
+  }
+
+  /* ── TOC number counter ────────────────────────── */
+  .inline-ref {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--blue);
+    border-bottom: 1px solid rgba(76,126,201,0.3);
+    cursor: pointer;
+  }
+
+  /* ── Responsive ────────────────────────────────── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .content-wrap { padding: 0 24px 80px; }
+    .topbar { padding: 0 24px; }
+    .nft-pair { grid-template-columns: 1fr; }
+    .params-grid { grid-template-columns: 1fr 1fr; }
+    .oracle-grid { grid-template-columns: 1fr; }
+    .contracts { grid-template-columns: 1fr; }
+  }
+
+  /* ── Fade in ───────────────────────────────────── */
+  .section {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .section.visible {
+    opacity: 1;
+    transform: none;
+  }
+  .hero { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ──────────────────────────────────────────────────────────────── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-mark">L</div>
+    <span class="sidebar-title">Lenoa Protocol</span>
+    <span class="sidebar-sub">WHITEPAPER v0.1 · DRAFT</span>
+  </div>
+
+  <div class="sidebar-section">
+    <span class="sidebar-section-label">Overview</span>
+    <a class="nav-item active" href="#abstract">
+      <span class="nav-num">—</span> Abstract
+    </a>
+    <a class="nav-item" href="#introduction">
+      <span class="nav-num">1</span> Introduction
+    </a>
+    <a class="nav-item" href="#background">
+      <span class="nav-num">2</span> Design Context
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <span class="sidebar-section-label">Protocol Design</span>
+    <a class="nav-item" href="#nft-model">
+      <span class="nav-num">3</span> Dual NFT Model
+    </a>
+    <a class="nav-item" href="#loan-lifecycle">
+      <span class="nav-num">4</span> Loan Lifecycle
+    </a>
+    <a class="nav-item" href="#interest">
+      <span class="nav-num">5</span> Interest Accrual
+    </a>
+    <a class="nav-item" href="#liquidation">
+      <span class="nav-num">6</span> Liquidation
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <span class="sidebar-section-label">Infrastructure</span>
+    <a class="nav-item" href="#oracle">
+      <span class="nav-num">7</span> Oracle System
+    </a>
+    <a class="nav-item" href="#contracts">
+      <span class="nav-num">8</span> Smart Contracts
+    </a>
+    <a class="nav-item" href="#parameters">
+      <span class="nav-num">9</span> Parameters
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <span class="sidebar-section-label">Token & Risks</span>
+    <a class="nav-item" href="#secondary">
+      <span class="nav-num">10</span> Secondary Market
+    </a>
+    <a class="nav-item" href="#risks">
+      <span class="nav-num">11</span> Risk Analysis
+    </a>
+    <a class="nav-item" href="#roadmap">
+      <span class="nav-num">12</span> Roadmap
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="version-badge">
+      <span class="version-dot"></span>
+      Mezo Network · Testnet
+    </div>
+  </div>
+</nav>
+
+<!-- ── Main ─────────────────────────────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-breadcrumb">Lenoa Protocol / <span>Whitepaper v0.1</span></div>
+    <div class="topbar-actions">
+      <a class="topbar-link" href="#">GitHub</a>
+      <a class="topbar-link" href="#">Audit</a>
+      <button class="topbar-btn">Launch App →</button>
+    </div>
+  </div>
+
+  <div class="content-wrap">
+
+    <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+    <div class="hero" id="abstract">
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-line"></div>
+        <span class="hero-eyebrow-text">Lenoa Protocol — Whitepaper</span>
+      </div>
+
+      <h1 class="hero-title">
+        Tradable<br><em>Bitcoin-Backed</em><br>Loan Positions
+      </h1>
+
+      <p class="hero-sub">
+        A peer-to-peer lending protocol on Mezo Network where every loan mints two independently tradable NFTs — one representing the collateral obligation, one representing the capital right.
+      </p>
+
+      <div class="hero-meta">
+        <div class="hero-meta-item">Version <strong>0.1 — Draft</strong></div>
+        <div class="hero-meta-item">Network <strong>Mezo Testnet</strong></div>
+        <div class="hero-meta-item">Collateral <strong>Bitcoin (BTC)</strong></div>
+        <div class="hero-meta-item">Denomination <strong>MUSD</strong></div>
+        <div class="hero-meta-item">Status <strong>Hackathon Build</strong></div>
+      </div>
+    </div>
+
+    <!-- Abstract -->
+    <div class="abstract-block">
+      <span class="abstract-label">Abstract</span>
+      <p class="abstract-text">
+        Lenoa introduces a peer-to-peer Bitcoin-backed lending protocol in which every loan position is split into two independently transferable ERC-721 tokens: a <strong>Borrower NFT</strong> representing the collateral obligation and a <strong>Lender NFT</strong> representing the capital right. Lenoa's P2P structure enables direct rate negotiation between counterparties, and the dual-NFT primitive creates a continuous secondary market for live loan positions on both sides of the debt agreement. We describe the dual-NFT architecture, the interest accrual mechanism, the two-tier permissioned liquidation model, and the three-feed oracle aggregator. We argue that tokenising both sides of a debt agreement produces a novel financial primitive — a liquid market for directional credit exposure on Bitcoin.
+      </p>
+    </div>
+
+    <!-- ── SECTION 1 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="introduction">
+      <span class="section-num">§ 01</span>
+      <h2 class="section-title">Introduction</h2>
+
+      <p>Bitcoin holders face a recurring problem: they hold a high-value, appreciating asset but cannot access dollar liquidity without selling it. Existing solutions force a choice between custodial centralised lenders — which carry counterparty risk — or over-engineered pooled DeFi protocols that abstract away the lender entirely.</p>
+
+      <p>Lenoa proposes a third path. By building on Mezo Network — a Bitcoin-native EVM-compatible blockchain — Lenoa enables direct peer-to-peer Bitcoin-backed loans denominated in MUSD, Mezo's stablecoin, while preserving the composability and programmability of DeFi.</p>
+
+      <p>The key insight is that both sides of a loan are valuable financial instruments. The <strong>right to collect repayment</strong> is a bond-like asset. The <strong>obligation to repay against collateral</strong> is a leveraged BTC position. Both should be liquid. Making both sides independently tokenised and tradable creates credit markets that have not previously existed on any chain.</p>
+
+      <h3>Core Properties</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Property</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>Peer-to-Peer</td><td>Lenders and borrowers are matched directly. No liquidity pools or intermediaries.</td></tr>
+            <tr><td>Dual NFT</td><td>Every loan mints two tradable ERC-721 tokens simultaneously.</td></tr>
+            <tr><td>Manual Matching</td><td>Borrowers post requests. Lenders choose which to fund. Rate is negotiated, not algorithmic.</td></tr>
+            <tr><td>Two-Tier Liquidation</td><td>Lender NFT holder has a 48hr priority window. After that, any address can liquidate for a bounty.</td></tr>
+            <tr><td>Bitcoin Native</td><td>Real BTC collateral on Mezo Network — a Bitcoin-backed, EVM-compatible chain.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SECTION 2 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="background">
+      <span class="section-num">§ 02</span>
+      <h2 class="section-title">Design <em>Context</em></h2>
+
+      <p>DeFi lending has evolved through three design generations. Understanding the limitations of each clarifies what Lenoa adds.</p>
+
+      <h3>Generation 1 — Pooled Overcollateralised Lending</h3>
+      <p>The first generation of DeFi lending introduced algorithmic interest rate pools. Lenders deposit into shared pools and receive fungible interest-bearing tokens in return. Borrowers draw from the pool against overcollateralised positions. Rates are set by utilisation curves rather than negotiation. The lender has no relationship with any specific borrower — their capital is pooled and fungible. Liquidation is permissionless: any address can trigger it for a bonus.</p>
+
+      <div class="callout" data-label="Limitation">
+        <p>Pooled lending is capital-efficient but removes all lender discretion. The lender cannot choose their counterparty, set their own rate, or control liquidation timing. The protocol intermediates everything.</p>
+      </div>
+
+      <h3>Generation 2 — NFT Collateral Lending</h3>
+      <p>The second generation extended lending to specific, non-fungible collateral. A borrower offers a specific asset; a lender makes a direct loan offer. This is peer-to-peer, and lenders can set their own terms. However, these protocols tokenise only the lender side of the agreement — the lender receives a receipt representing their loan. The borrower's position remains non-transferable.</p>
+
+      <h3>Generation 3 — Fixed-Rate Bond Protocols</h3>
+      <p>The third generation introduced fixed-rate lending via principal tokens and yield tokens — time-bounded representations of cash flows. These are composable and tradable, but synthetic: they are created by splitting yield-bearing deposits, not by direct bilateral credit agreements between a specific lender and borrower.</p>
+
+      <h3>Lenoa's Position</h3>
+      <p>Lenoa takes the bilateral matching of Gen 2 and applies NFT tokenisation to <em>both</em> sides of the agreement. The Borrower NFT is a tradable instrument representing a collateralised position — a primitive that does not exist in any prior generation. This creates secondary markets for borrower exposure, not just lender receipts, and enables a new class of on-chain credit instrument.</p>
+    </section>
+
+    <!-- ── SECTION 3 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="nft-model">
+      <span class="section-num">§ 03</span>
+      <h2 class="section-title">The Dual <em>NFT Model</em></h2>
+
+      <p>The core primitive of Lenoa is the simultaneous minting of two linked ERC-721 tokens upon loan funding. These tokens encode the full state of a bilateral credit agreement on-chain.</p>
+
+      <div class="nft-pair">
+        <div class="nft-card">
+          <div class="nft-card-header">
+            <div class="nft-card-dot" style="background:var(--blue)"></div>
+            <span class="nft-card-id" style="color:var(--blue)">BN-047 — Borrower NFT</span>
+            <span class="tag tag-blue">ERC-721</span>
+          </div>
+          <div class="nft-card-body">
+            <div class="nft-row"><span class="nft-row-label">collateral</span><span class="nft-row-value">1.000 BTC</span></div>
+            <div class="nft-row"><span class="nft-row-label">principal</span><span class="nft-row-value">30,000 MUSD</span></div>
+            <div class="nft-row"><span class="nft-row-label">accrued_interest</span><span class="nft-row-value">412.50 MUSD</span></div>
+            <div class="nft-row"><span class="nft-row-label">ltv_current</span><span class="nft-row-value">50.0%</span></div>
+            <div class="nft-row"><span class="nft-row-label">health_factor</span><span class="nft-row-value" style="color:var(--green)">1.50</span></div>
+            <div class="nft-row"><span class="nft-row-label">liquidation_ltv</span><span class="nft-row-value">75.0%</span></div>
+            <div class="nft-row"><span class="nft-row-label">paired_lender_nft</span><span class="nft-row-value" style="color:var(--green)">LN-047</span></div>
+            <div class="nft-row"><span class="nft-row-label">status</span><span class="nft-row-value"><span class="tag tag-green">ACTIVE</span></span></div>
+          </div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-card-header">
+            <div class="nft-card-dot" style="background:var(--green)"></div>
+            <span class="nft-card-id" style="color:var(--green)">LN-047 — Lender NFT</span>
+            <span class="tag tag-green">ERC-721</span>
+          </div>
+          <div class="nft-card-body">
+            <div class="nft-row"><span class="nft-row-label">principal</span><span class="nft-row-value">30,000 MUSD</span></div>
+            <div class="nft-row"><span class="nft-row-label">interest_rate</span><span class="nft-row-value">6.5% APR</span></div>
+            <div class="nft-row"><span class="nft-row-label">interest_earned</span><span class="nft-row-value" style="color:var(--green)">412.50 MUSD</span></div>
+            <div class="nft-row"><span class="nft-row-label">collateral_backing</span><span class="nft-row-value">1.000 BTC</span></div>
+            <div class="nft-row"><span class="nft-row-label">ltv_current</span><span class="nft-row-value">50.0%</span></div>
+            <div class="nft-row"><span class="nft-row-label">liquidation_rights</span><span class="nft-row-value" style="color:var(--gold)">YES — LTV > 75%</span></div>
+            <div class="nft-row"><span class="nft-row-label">liquidation_via</span><span class="nft-row-value">Lender (48hr) → Anyone</span></div>
+            <div class="nft-row"><span class="nft-row-label">paired_borrower_nft</span><span class="nft-row-value" style="color:var(--blue)">BN-047</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-blue" data-label="Pairing Invariant">
+        <p>BN-047 and LN-047 are permanently paired at creation and cannot be uncoupled. Repayment by the holder of BN-047 is always directed to the current holder of LN-047, regardless of how many times either NFT has changed hands. This invariant is enforced at the contract level.</p>
+      </div>
+
+      <h3>Transfer Semantics</h3>
+      <p>Both NFTs override the OZ v5 <code>_update()</code> hook. When either NFT changes hands, the hook calls <code>InterestAccrual.currentDebt()</code>, snapshotting the accrued interest into storage before the transfer completes. The new holder inherits the position with the exact debt state at the moment of transfer — no interest is lost or gained by the act of transfer itself.</p>
+
+      <pre data-lang="Solidity"><code><span class="cm">// OZ v5: _update() replaces _beforeTokenTransfer</span>
+<span class="kw">function</span> <span class="fn">_update</span>(
+    address to,
+    uint256 tokenId,
+    address auth
+) <span class="kw">internal override returns</span> (address from) {
+    from = <span class="kw">super</span>.<span class="fn">_update</span>(to, tokenId, auth);
+    <span class="kw">bool</span> isTransfer = from != address(<span class="num">0</span>) &amp;&amp; to != address(<span class="num">0</span>);
+    <span class="kw">if</span> (isTransfer) {
+        <span class="cm">// Snapshot accrued interest before new holder takes over</span>
+        <span class="fn">_snapshotDebt</span>(tokenId / <span class="num">2</span>);
+    }
+}</code></pre>
+    </section>
+
+    <!-- ── SECTION 4 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="loan-lifecycle">
+      <span class="section-num">§ 04</span>
+      <h2 class="section-title">Loan <em>Lifecycle</em></h2>
+
+      <p>A Lenoa loan passes through five distinct states. The state is stored in the Borrower NFT and enforced by LoanManager.sol.</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <span class="flow-num">STATE 01</span>
+          <div class="flow-title">REQUESTED</div>
+          <p class="flow-desc">Borrower deposits BTC. Loan request posted publicly. No NFTs minted yet.</p>
+        </div>
+        <div class="flow-step">
+          <span class="flow-num">STATE 02</span>
+          <div class="flow-title">FUNDED</div>
+          <p class="flow-desc">Lender sends MUSD. BN and LN minted simultaneously. MUSD to borrower.</p>
+        </div>
+        <div class="flow-step">
+          <span class="flow-num">STATE 03</span>
+          <div class="flow-title">ACTIVE</div>
+          <p class="flow-desc">Interest accruing. Both NFTs tradable. LTV tracked continuously.</p>
+        </div>
+        <div class="flow-step">
+          <span class="flow-num">STATE 04a</span>
+          <div class="flow-title">REPAID</div>
+          <p class="flow-desc">BN holder repays. MUSD to LN holder. BTC returned. Both burned.</p>
+        </div>
+        <div class="flow-step">
+          <span class="flow-num">STATE 04b</span>
+          <div class="flow-title">LIQUIDATED</div>
+          <p class="flow-desc">LTV > 75%. Lender (48hr window) or anyone triggers. BTC seized, debt paid, bounty paid, remainder to borrower. Both burned.</p>
+        </div>
+      </div>
+
+      <h3>Rate Discovery</h3>
+      <p>Unlike algorithmic protocols, Lenoa rates are set by the borrower as a proposal and accepted (or countered) by a lender. The borrower's request includes a proposed rate. Any lender can fund at that rate. The market determines whether a given rate attracts capital — high-risk requests must offer higher rates.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>LTV at Request</th><th>Risk Profile</th><th>Indicative Rate Range</th><th>Likely Demand</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>20–40%</td>
+              <td><span class="tag tag-green">CONSERVATIVE</span></td>
+              <td>4–7% APR</td>
+              <td>High — safe collateral ratio</td>
+            </tr>
+            <tr>
+              <td>40–55%</td>
+              <td><span class="tag tag-blue">MODERATE</span></td>
+              <td>7–12% APR</td>
+              <td>Medium — reasonable buffer</td>
+            </tr>
+            <tr>
+              <td>55–60%</td>
+              <td><span class="tag tag-gold">AGGRESSIVE</span></td>
+              <td>12–20% APR</td>
+              <td>Low — thin buffer to liquidation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SECTION 5 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="interest">
+      <span class="section-num">§ 05</span>
+      <h2 class="section-title">Interest <em>Accrual</em></h2>
+
+      <p>Interest accrues continuously on all active loans. The protocol uses a simple interest model for the hackathon release, with compound interest planned for v1.</p>
+
+      <div class="formula">
+        <div class="formula-eq">currentDebt(t) = principal × ( 1 + rate × Δt / 365 days )</div>
+        <p class="formula-desc">Simple interest model. Δt is seconds elapsed since last snapshot. Rate is annual (e.g., 0.065 for 6.5% APR).</p>
+      </div>
+
+      <p>Interest is not streamed continuously — it is calculated on-demand. When the contract needs the current debt (for repayment, liquidation check, or NFT transfer), it computes the current value using the formula above against the stored snapshot.</p>
+
+      <h3>Interest on Transfer</h3>
+      <p>The critical invariant: interest earned before a transfer belongs to the seller. The <code>_update()</code> hook snapshots the accrued interest into the <code>debtAtLastUpdate</code> field and records <code>lastUpdated = block.timestamp</code>. The buyer's position starts from this snapshot — they did not earn interest they did not hold the NFT for.</p>
+
+      <pre data-lang="Solidity"><code><span class="kw">function</span> <span class="fn">currentDebt</span>(uint256 loanId) <span class="kw">public view returns</span> (uint256) {
+    Loan <span class="kw">storage</span> loan = loans[loanId];
+    uint256 elapsed  = block.timestamp - loan.lastUpdated;
+    uint256 interest = loan.debtAtLastUpdate
+        * loan.interestRate
+        * elapsed
+        / <span class="num">365 days</span>
+        / <span class="num">1e18</span>;
+    <span class="kw">return</span> loan.debtAtLastUpdate + interest;
+}</code></pre>
+
+      <div class="callout callout-green" data-label="v1 Upgrade">
+        <p>v1 will migrate to compound interest using the standard <code>e^(rate × t)</code> continuous compounding formula. The simple model is used for the initial release for auditability — the upgrade path is additive and does not affect NFT structure or pairing invariants.</p>
+      </div>
+    </section>
+
+    <!-- ── SECTION 6 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="liquidation">
+      <span class="section-num">§ 06</span>
+      <h2 class="section-title">Liquidation <em>Design</em></h2>
+
+      <p>Lenoa uses a two-tier liquidation model that prioritises the Lender NFT holder while guaranteeing protocol solvency through a permissionless fallback. This design eliminates the lender-inactivity risk that would otherwise make the protocol unsafe in a rapid market downturn.</p>
+
+      <h3>Two-Tier Access Rules</h3>
+
+      <pre data-lang="Pseudocode"><code><span class="cm">// Liquidation access — enforced by LoanManager.sol</span>
+<span class="kw">if</span> (ltv &lt; <span class="num">75%</span>):
+    → No liquidation permitted
+
+<span class="kw">else if</span> (ltv >= <span class="num">75%</span> AND timeSinceLiquidatable &lt; <span class="num">48 hours</span>):
+    → <span class="str">PRIORITY WINDOW</span>: Lender NFT holder only
+    → No MUSD payment required — lender receives BTC directly
+    → Lender receives: BTC equivalent of outstanding debt (at oracle price)
+    → Borrower receives: surplus BTC above debt amount
+    → No bounty deducted — exclusive window is the lender's reward
+
+<span class="kw">else if</span> (timeSinceLiquidatable >= <span class="num">48 hours</span>):
+    → <span class="str">OPEN LIQUIDATION</span>: Anyone can liquidate (bots, third parties)
+    → Liquidator pays outstanding debt in MUSD → Lender NFT holder receives it
+    → From seized BTC collateral:
+        → Liquidator receives: btcForDebt + btcForBounty
+            → btcForDebt   = debt / btcPrice          (reimbursement for MUSD paid)
+            → btcForBounty = (0.8% × principal + 10 MUSD) / btcPrice  (profit)
+        → Borrower NFT holder receives: remaining BTC after liquidator paid
+    → No DEX sell by the protocol — liquidator acquires MUSD and converts externally</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Property</th><th>Pooled Lending Model</th><th>Lenoa Priority Window (0–48hr)</th><th>Lenoa Open Liquidation (48hr+)</th></tr></thead>
+          <tbody>
+            <tr><td>Who can liquidate</td><td>Any address immediately</td><td>Lender NFT holder only</td><td>Any address</td></tr>
+            <tr><td>Incentive to liquidator</td><td>Fixed bonus on debt</td><td>Exclusive 48hr window + BTC settlement</td><td>BTC reimbursement for MUSD paid + 0.8% + 10 MUSD bounty in BTC</td></tr>
+            <tr><td>Lender outcome</td><td>Competes with bots for bonus</td><td>Debt repaid in BTC (at oracle price)</td><td>Full debt repaid in MUSD — done</td></tr>
+            <tr><td>Borrower outcome</td><td>Loses all collateral</td><td>Receives surplus BTC above debt</td><td>Receives BTC remainder after liquidator paid</td></tr>
+            <tr><td>DEX sell required</td><td>Yes — protocol sells collateral</td><td>No — BTC transferred directly</td><td>No — liquidator handles MUSD acquisition externally</td></tr>
+            <tr><td>Bad debt risk</td><td>None — automated liquidation</td><td>Exists if lender is inactive</td><td>None — bot bounty guarantees action</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Bounty Structure</h3>
+      <p>The Open Liquidation bounty is designed to incentivise liquidator bots on loans of any size. The variable component (0.8% of principal) scales with loan size. The flat kicker (10 MUSD) ensures small loans are also worth liquidating — preventing dust accumulation.</p>
+
+      <div class="formula">
+        <div class="formula-eq">bounty = (0.008 × principal) + 10 MUSD</div>
+        <p class="formula-desc">Example: 30,000 MUSD loan → bounty = 240 + 10 = 250 MUSD. Paid to the liquidator in BTC from seized collateral (250 ÷ btcPrice). The liquidator is also reimbursed in BTC for the full MUSD debt they paid — so their net cost is zero and they profit the bounty.</p>
+      </div>
+
+      <h3>Worked Example — Real Numbers</h3>
+      <p>The following uses live market data. BTC = $67,280, MUSD ≈ $1.00.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Step</th><th>Action</th><th>Amount</th><th>Who Receives</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag-blue">1</span></td>
+              <td>Loan opens. Borrower locks 1 BTC at $67,280.</td>
+              <td>Initial LTV: 44.6%</td>
+              <td>Borrower receives 30,000 MUSD</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-gold">2</span></td>
+              <td>BTC falls to $39,900. Debt = 30,000 + 412.50 accrued = 30,412.50 MUSD.</td>
+              <td>LTV = 30,412.50 / 39,900 = <strong>76.2%</strong></td>
+              <td>Loan is now liquidatable</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-gold">3</span></td>
+              <td>48-hour window: Lender NFT holder may act. Lender receives BTC equivalent of debt (30,412.50 MUSD ÷ $39,900 = 0.762 BTC). Borrower receives surplus 0.238 BTC (~$9,500). No MUSD changes hands.</td>
+              <td>Lender: 0.762 BTC · Borrower: 0.238 BTC</td>
+              <td>Lender NFT + Borrower NFT holders</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-red">4</span></td>
+              <td>48 hours pass without Priority Window action. Open Liquidation opens — any bot may liquidate.</td>
+              <td>—</td>
+              <td>Permissionless</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-red">5</span></td>
+              <td>Bot pays 30,412.50 MUSD directly to the Lender NFT holder. Lender is fully repaid and exits. No DEX sell by the protocol.</td>
+              <td>30,412.50 MUSD</td>
+              <td>Lender NFT holder</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-red">6</span></td>
+              <td>From seized BTC collateral: bot receives reimbursement for MUSD paid (30,412.50 ÷ $39,900 = 0.762 BTC) plus bounty (0.8% × 30,000 + 10 MUSD = 250 MUSD → 250 ÷ $39,900 = 0.00627 BTC). Total to bot: 0.768 BTC.</td>
+              <td>0.768 BTC (~$30,662)</td>
+              <td>Liquidator bot</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-green">7</span></td>
+              <td>Remaining BTC returned to Borrower NFT holder: 1 BTC − 0.768 BTC = 0.232 BTC (~$9,257).</td>
+              <td>0.232 BTC (~$9,257)</td>
+              <td>Borrower NFT holder</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-green">8</span></td>
+              <td>Both BN-047 and LN-047 burned. Loan closed.</td>
+              <td>—</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-green" data-label="Key Guarantee">
+        <p>In all scenarios, the Lender NFT holder is made whole — they receive their principal plus accrued interest, settled in BTC (Priority Window) or MUSD (Open Liquidation). The protocol never sells collateral on a DEX. The liquidator acquires MUSD externally, pays the lender directly, and is reimbursed from BTC collateral plus a bounty. The borrower always receives any BTC surplus above all obligations.</p>
+      </div>
+
+      <h3>LTV Thresholds</h3>
+      <div class="table-wrap">
+        <table class="risk-bar-row">
+          <thead><tr><th>LTV Range</th><th>Status</th><th>Health Factor</th><th>Visualisation</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>0–55%</td>
+              <td><span class="tag tag-green">SAFE</span></td>
+              <td>&gt; 1.36</td>
+              <td>
+                <div class="risk-bar-wrap">
+                  <div class="risk-bar-track" style="width:120px">
+                    <div class="risk-bar-fill" style="width:73%;background:var(--green)"></div>
+                    <div class="risk-bar-liq"></div>
+                  </div>
+                </div>
+              </td>
+              <td>None</td>
+            </tr>
+            <tr>
+              <td>55–70%</td>
+              <td><span class="tag tag-gold">WATCH</span></td>
+              <td>1.07–1.36</td>
+              <td>
+                <div class="risk-bar-wrap">
+                  <div class="risk-bar-track" style="width:120px">
+                    <div class="risk-bar-fill" style="width:87%;background:var(--gold)"></div>
+                    <div class="risk-bar-liq"></div>
+                  </div>
+                </div>
+              </td>
+              <td>On-chain warning emitted</td>
+            </tr>
+            <tr>
+              <td>70–75%</td>
+              <td><span class="tag tag-red">DANGER</span></td>
+              <td>1.00–1.07</td>
+              <td>
+                <div class="risk-bar-wrap">
+                  <div class="risk-bar-track" style="width:120px">
+                    <div class="risk-bar-fill" style="width:97%;background:var(--red)"></div>
+                    <div class="risk-bar-liq"></div>
+                  </div>
+                </div>
+              </td>
+              <td>Lender NFT holder alerted</td>
+            </tr>
+            <tr>
+              <td>&gt; 75%, &lt; 48hr</td>
+              <td><span class="tag tag-red">PRIORITY WINDOW</span></td>
+              <td>&lt; 1.00</td>
+              <td>
+                <div class="risk-bar-wrap">
+                  <div class="risk-bar-track" style="width:120px">
+                    <div class="risk-bar-fill" style="width:100%;background:var(--red)"></div>
+                    <div class="risk-bar-liq"></div>
+                  </div>
+                </div>
+              </td>
+              <td>Lender NFT holder may liquidate. Full spread.</td>
+            </tr>
+            <tr>
+              <td>&gt; 75%, 48hr+</td>
+              <td><span class="tag tag-red">OPEN LIQUIDATION</span></td>
+              <td>&lt; 1.00</td>
+              <td>
+                <div class="risk-bar-wrap">
+                  <div class="risk-bar-track" style="width:120px">
+                    <div class="risk-bar-fill" style="width:100%;background:#8B1A1A)"></div>
+                    <div class="risk-bar-liq"></div>
+                  </div>
+                </div>
+              </td>
+              <td>Anyone may liquidate. 250 MUSD bounty.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SECTION 7 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="oracle">
+      <span class="section-num">§ 07</span>
+      <h2 class="section-title">Oracle <em>Architecture</em></h2>
+
+      <p>All LTV calculations, liquidation triggers, and loan health metrics depend on a single trusted BTC/USD price. Lenoa aggregates three independent price feeds and returns the median, making single-feed manipulation prohibitively expensive.</p>
+
+      <div class="oracle-grid">
+        <div class="oracle-cell">
+          <span class="oracle-name" style="color:var(--blue)">Pyth Network</span>
+          <span class="oracle-role">Pull Oracle · &lt;1s Latency</span>
+          <span class="oracle-price">$94,185</span>
+          <span class="oracle-badge">LIVE</span>
+        </div>
+        <div class="oracle-cell">
+          <span class="oracle-name" style="color:var(--gold)">Stork</span>
+          <span class="oracle-role">Ultra-Low Latency · Publisher Network</span>
+          <span class="oracle-price">$94,210</span>
+          <span class="oracle-badge">LIVE</span>
+        </div>
+        <div class="oracle-cell">
+          <span class="oracle-name" style="color:var(--green)">DEX TWAP</span>
+          <span class="oracle-role">On-Chain · Mezo Swap · 1h Window</span>
+          <span class="oracle-price">$94,052</span>
+          <span class="oracle-badge">LIVE</span>
+        </div>
+      </div>
+
+      <div class="oracle-median">
+        <span class="oracle-median-label">Median Price — Used for All Calculations</span>
+        <span class="oracle-median-value">$94,185</span>
+      </div>
+
+      <pre data-lang="Solidity"><code><span class="kw">function</span> <span class="fn">getMedianPrice</span>() <span class="kw">external returns</span> (uint256) {
+    uint256 pPyth  = <span class="fn">_getPyth</span>();
+    uint256 pStork = <span class="fn">_getStork</span>();
+    uint256 pTwap  = <span class="fn">_getTwap</span>();
+    uint256 median = <span class="fn">_median</span>(pPyth, pStork, pTwap);
+    <span class="fn">_validateDeviation</span>(<span class="str">"Pyth"</span>,  pPyth,  median);
+    <span class="fn">_validateDeviation</span>(<span class="str">"Stork"</span>, pStork, median);
+    <span class="fn">_validateDeviation</span>(<span class="str">"Twap"</span>,  pTwap,  median);
+    <span class="kw">return</span> median;
+}
+
+<span class="kw">function</span> <span class="fn">_median</span>(uint256 a, uint256 b, uint256 c) <span class="kw">internal pure returns</span> (uint256) {
+    <span class="kw">if</span> (a > b) (a, b) = (b, a);
+    <span class="kw">if</span> (b > c) (b, c) = (c, b);
+    <span class="kw">if</span> (a > b) (a, b) = (b, a);
+    <span class="kw">return</span> b; <span class="cm">// middle value</span>
+}</code></pre>
+
+      <h3>Safety Rules</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Check</th><th>Condition</th><th>Action on Fail</th></tr></thead>
+          <tbody>
+            <tr><td>Freshness</td><td>All feeds updated within last 60s</td><td>Revert — protocol pauses</td></tr>
+            <tr><td>Deviation</td><td>No feed &gt; 2% from median</td><td>Revert — potential manipulation</td></tr>
+            <tr><td>Circuit breaker</td><td>Median drops &gt; 25% in single update</td><td>New loans paused; repay and liquidate continue</td></tr>
+            <tr><td>Liveness</td><td>Stork/Pyth stale; DEX TWAP &gt; 2hr old</td><td>Revert on affected feed; other two feeds still valid</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SECTION 8 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="contracts">
+      <span class="section-num">§ 08</span>
+      <h2 class="section-title">Smart Contract <em>Architecture</em></h2>
+
+      <p>Lenoa is composed of five smart contracts. Each has a single responsibility. LoanManager.sol is the only contract that holds funds; all others are stateless or reference-only.</p>
+
+      <div class="contracts">
+        <div class="contract-card">
+          <span class="contract-name">LoanManager.sol</span>
+          <p class="contract-desc">Central coordinator. Receives BTC collateral, creates and validates loan requests, routes MUSD on funding, processes repayments, and coordinates both liquidation tiers. The only contract with custody of funds.</p>
+          <div class="contract-functions">
+            <span class="fn-tag">depositAndRequest()</span>
+            <span class="fn-tag">fundLoan()</span>
+            <span class="fn-tag">repay()</span>
+            <span class="fn-tag">claimPriorityWindow()</span>
+            <span class="fn-tag">openLiquidation()</span>
+          </div>
+        </div>
+        <div class="contract-card">
+          <span class="contract-name">LoanNFT.sol</span>
+          <p class="contract-desc">ERC-721 contract. Mints both Borrower NFT and Lender NFT per loan. Stores full Loan struct on-chain. Implements the OZ v5 <code style="font-family:var(--mono);font-size:13px">_update()</code> hook to snapshot accrued interest on every transfer. Burns both NFTs on loan closure.</p>
+          <div class="contract-functions">
+            <span class="fn-tag">mintPair()</span>
+            <span class="fn-tag">burnPair()</span>
+            <span class="fn-tag">loanById()</span>
+            <span class="fn-tag">updateDebt()</span>
+          </div>
+        </div>
+        <div class="contract-card">
+          <span class="contract-name">OracleAggregator.sol</span>
+          <p class="contract-desc">Fetches BTC/USD from Pyth, Stork, and the on-chain DEX TWAP. Sorts the three values and returns the median. Validates freshness and per-feed deviation bounds. Triggers circuit breaker on &gt;25% single-block drop.</p>
+          <div class="contract-functions">
+            <span class="fn-tag">getMedianPrice()</span>
+            <span class="fn-tag">peekMedianPrice()</span>
+            <span class="fn-tag">resetCircuitBreaker()</span>
+          </div>
+        </div>
+        <div class="contract-card">
+          <span class="contract-name">InterestAccrual.sol</span>
+          <p class="contract-desc">Stateless library called by LoanManager. Computes current debt for any loan given principal, rate, and elapsed time. Handles debt snapshotting on NFT transfers via the hook in LoanNFT.</p>
+          <div class="contract-functions">
+            <span class="fn-tag">currentDebt()</span>
+            <span class="fn-tag">updateSnapshot()</span>
+            <span class="fn-tag">accruedSince()</span>
+          </div>
+        </div>
+        <div class="contract-card" style="grid-column: 1 / -1;">
+          <span class="contract-name">Treasury.sol</span>
+          <p class="contract-desc">Accumulates protocol origination fees (5% of each loan principal). Controlled by the protocol owner. Emits fee events for off-chain accounting. Designed for DAO governance transfer in v1.</p>
+          <div class="contract-functions">
+            <span class="fn-tag">collectFee()</span>
+            <span class="fn-tag">withdraw()</span>
+            <span class="fn-tag">setFeeRate()</span>
+          </div>
+        </div>
+        <div class="contract-card" style="grid-column: 1 / -1;">
+          <span class="contract-name">DexTwap.sol</span>
+          <p class="contract-desc">Reads the Mezo Swap BTC/MUSD AMM pool and computes a 1-hour time-weighted average price from cumulative on-chain accumulators. Fully on-chain — no external publisher required. Manipulation requires sustaining an artificial price across the entire TWAP window, making it independent from publisher-based oracle attacks.</p>
+          <div class="contract-functions">
+            <span class="fn-tag">update()</span>
+            <span class="fn-tag">getPrice()</span>
+            <span class="fn-tag">spotPrice()</span>
+            <span class="fn-tag">peekPrice()</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 9 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="parameters">
+      <span class="section-num">§ 09</span>
+      <h2 class="section-title">Protocol <em>Parameters</em></h2>
+
+      <div class="params-grid">
+        <div class="param-cell">
+          <span class="param-label">Max Borrow LTV</span>
+          <span class="param-value">60%</span>
+          <span class="param-note">15% buffer below liquidation threshold. Prevents instant liquidation risk at open.</span>
+        </div>
+        <div class="param-cell">
+          <span class="param-label">Liquidation Threshold</span>
+          <span class="param-value">75%</span>
+          <span class="param-note">BTC must fall ~20% from borrow price before max-LTV loan is liquidatable.</span>
+        </div>
+        <div class="param-cell">
+          <span class="param-label">Origination Fee</span>
+          <span class="param-value">5%</span>
+          <span class="param-note">Charged to borrower at loan creation. Sent to Treasury.sol.</span>
+        </div>
+        <div class="param-cell">
+          <span class="param-label">Interest Rate</span>
+          <span class="param-value italic" style="font-size:18px;font-family:var(--mono)">P2P Negotiated</span>
+          <span class="param-note">Set per-loan by borrower proposal. Not fixed or algorithmic.</span>
+        </div>
+        <div class="param-cell">
+          <span class="param-label">Oracle Staleness Limit</span>
+          <span class="param-value">60s</span>
+          <span class="param-note">Any feed older than 60 seconds triggers a protocol pause.</span>
+        </div>
+        <div class="param-cell">
+          <span class="param-label">Max Feed Deviation</span>
+          <span class="param-value">2%</span>
+          <span class="param-note">Any feed deviating >2% from median triggers revert and investigation.</span>
+        </div>
+      </div>
+
+      <div class="callout" data-label="Governance">
+        <p>All parameters are adjustable by the protocol owner via <code style="font-family:var(--mono);font-size:13px">Ownable2Step</code>. The ownership progression follows three stages:</p>
+        <p style="margin-top:12px"><strong style="color:var(--gold)">v0 — Hackathon:</strong> Deployer EOA owns all contracts. Simplest possible setup; acceptable because no real user funds are at risk during testing.</p>
+        <p style="margin-top:8px"><strong style="color:var(--gold)">v0.5 — Testnet:</strong> Ownership transferred to a Gnosis Safe multisig (3-of-5). Parameter changes require multiple independent key-holders to sign. Provides meaningful protection without governance overhead.</p>
+        <p style="margin-top:8px"><strong style="color:var(--gold)">v1 — Mainnet:</strong> On-chain DAO with timelock. Parameter changes are proposed on-chain, subject to a mandatory 48-hour delay, and executable only after community vote. Users can observe and exit before any change takes effect.</p>
+      </div>
+    </section>
+
+    <!-- ── SECTION 10 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="secondary">
+      <span class="section-num">§ 10</span>
+      <h2 class="section-title">Secondary <em>Market</em></h2>
+
+      <p>The secondary market for Lenoa NFTs is the protocol's most novel property. Unlike receipt tokens from pooled protocols (which represent a share of a pool, not a specific loan), Lenoa NFTs represent bilateral claims with specific, observable risk parameters.</p>
+
+      <h3>Pricing a Lender NFT</h3>
+      <p>A rational buyer of a Lender NFT would price it as:</p>
+
+      <div class="formula">
+        <div class="formula-eq">fair_value = principal + accrued_interest + expected_future_interest − default_risk_discount</div>
+        <p class="formula-desc">Where default_risk_discount increases as LTV approaches 75%. All inputs are readable on-chain.</p>
+      </div>
+
+      <h3>Pricing a Borrower NFT</h3>
+      <p>A Borrower NFT buyer is acquiring a leveraged BTC long position with capped downside (liquidation) and full upside. Pricing reflects:</p>
+
+      <div class="formula">
+        <div class="formula-eq">fair_value = collateral_value − outstanding_debt − risk_premium</div>
+        <p class="formula-desc">Distressed positions (LTV >65%) will trade at a discount to intrinsic value. The buyer is pricing in the probability of liquidation before repayment.</p>
+      </div>
+
+      <h3>Market Structure</h3>
+      <p>The Lenoa NFT marketplace (market.lenoa.xyz, launching post-hackathon) will support:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>Fixed-price listings</td><td>Seller sets price. Any buyer can fill.</td></tr>
+            <tr><td>Offer system</td><td>Buyer makes offer on any NFT. Seller accepts or counters.</td></tr>
+            <tr><td>LTV-sorted browsing</td><td>Filter by risk profile, rate, remaining duration, collateral size.</td></tr>
+            <tr><td>Distressed feed</td><td>Real-time list of NFTs approaching liquidation — for speculative buyers.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SECTION 11 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="risks">
+      <span class="section-num">§ 11</span>
+      <h2 class="section-title">Risk <em>Analysis</em></h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Risk</th><th>Category</th><th>Severity</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Oracle manipulation</td>
+              <td>Market</td>
+              <td><span class="tag tag-gold">MEDIUM</span></td>
+              <td>3-feed median, deviation bounds, circuit breaker</td>
+            </tr>
+            <tr>
+              <td>Lender inactivity during crash</td>
+              <td>Protocol Design</td>
+              <td><span class="tag tag-blue">LOW</span></td>
+              <td>48hr Priority Window window. After that, permissionless Open Liquidation with 250 MUSD bot bounty guarantees liquidation.</td>
+            </tr>
+            <tr>
+              <td>Smart contract bug</td>
+              <td>Technical</td>
+              <td><span class="tag tag-red">HIGH</span></td>
+              <td>Audit pre-mainnet. Multisig pause function.</td>
+            </tr>
+            <tr>
+              <td>Rapid BTC price crash (&gt;25%)</td>
+              <td>Market</td>
+              <td><span class="tag tag-gold">MEDIUM</span></td>
+              <td>Max 60% LTV leaves 20% buffer. Circuit breaker pauses new loans.</td>
+            </tr>
+            <tr>
+              <td>NFT transfer to burn address</td>
+              <td>User Error</td>
+              <td><span class="tag tag-gold">MEDIUM</span></td>
+              <td>Frontend warnings. Cannot be recovered at contract level.</td>
+            </tr>
+            <tr>
+              <td>Illiquid secondary market</td>
+              <td>Market</td>
+              <td><span class="tag tag-blue">LOW</span></td>
+              <td>Positions remain valid. Lender holds to maturity if no buyer.</td>
+            </tr>
+            <tr>
+              <td>MUSD depeg</td>
+              <td>External</td>
+              <td><span class="tag tag-gold">MEDIUM</span></td>
+              <td>Inherited from Mezo Network. Outside protocol control.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-gold" data-label="Primary Risk — Smart Contract Bugs">
+        <p>With the two-tier liquidation model now in place, the primary unmitigated risk in v0 is smart contract vulnerabilities. The contracts have not been audited. A formal audit is the critical pre-mainnet requirement. The deployer EOA can call <code style="font-family:var(--mono);font-size:13px">pause()</code> on LoanManager to halt new loan creation as an emergency stop, but cannot recover funds already in the protocol if a vulnerability is exploited before detection. The v0.5 upgrade to a multisig significantly reduces the risk of a single-key compromise.</p>
+      </div>
+    </section>
+
+    <!-- ── SECTION 12 ──────────────────────────────────────────────────────────── -->
+    <div class="divider"></div>
+    <section class="section" id="roadmap">
+      <span class="section-num">§ 12</span>
+      <h2 class="section-title"><em>Roadmap</em></h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Phase</th><th>Timeline</th><th>Deliverables</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>v0 — Hackathon</td>
+              <td>Apr–May 2025</td>
+              <td>Core contracts (LoanManager, LoanNFT, OracleAggregator, DexTwap, Treasury, InterestAccrual), dual NFT mint/burn, P2P matching UI, three-feed oracle aggregator (Pyth + Stork + DEX TWAP), two-tier liquidation, EOA owner</td>
+              <td><span class="tag tag-blue">BUILDING</span></td>
+            </tr>
+            <tr>
+              <td>v0.5 — Testnet</td>
+              <td>Q2 2025</td>
+              <td>Full Mezo testnet deployment, NFT marketplace (market.lenoa.xyz), liquidator terminal, audit engagement, ownership transfer to 3-of-5 Gnosis Safe multisig</td>
+              <td><span class="tag tag-gold">PLANNED</span></td>
+            </tr>
+            <tr>
+              <td>v1 — Mainnet</td>
+              <td>Q3 2025</td>
+              <td>Compound interest, timelocked DAO governance (48hr delay + token vote), rate discovery UI, formal audit complete, LENOA governance token</td>
+              <td><span class="tag tag-gold">PLANNED</span></td>
+            </tr>
+            <tr>
+              <td>v2 — Expansion</td>
+              <td>Q4 2025</td>
+              <td>Multi-collateral (ETH, LSTs), cross-chain NFT bridging, institutional API, partial repayments</td>
+              <td><span class="tag tag-gold">PLANNED</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="height:80px"></div>
+
+      <!-- Footer -->
+      <div style="border-top:1px solid var(--border);padding-top:40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:gap;">
+        <div>
+          <div style="font-family:var(--serif);font-size:22px;color:var(--text);margin-bottom:4px">Lenoa Protocol</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.08em">Whitepaper v0.1 — Draft · Mezo Network · 2025</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-align:right;line-height:1.8">
+          Built for Mezo Hackathon 2025<br>
+          Advanced DeFi Solutions Track<br>
+          lenoa.xyz · github.com/lenoa
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+// ── Active nav on scroll ──────────────────────────────────────────────────────
+const sections = document.querySelectorAll('section[id], div[id="abstract"]');
+const navItems = document.querySelectorAll('.nav-item');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navItems.forEach(item => {
+        item.classList.toggle('active', item.getAttribute('href') === `#${id}`);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -60% 0px', threshold: 0 });
+
+sections.forEach(s => observer.observe(s));
+
+// ── Fade in sections ──────────────────────────────────────────────────────────
+const fadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.05 });
+
+document.querySelectorAll('.section').forEach(s => fadeObserver.observe(s));
+
+// ── Smooth scroll for nav links ───────────────────────────────────────────────
+document.querySelectorAll('.nav-item').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
