@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work3 Labs — Whitepaper v1.0</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:#FAFAF8;color:#0D0D0D;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+.mesh{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.mesh::before{content:'';position:absolute;top:-20%;right:-10%;width:70vw;height:70vw;background:radial-gradient(ellipse,rgba(45,252,68,.13) 0%,rgba(45,252,68,.04) 40%,transparent 70%);border-radius:50%}
+.mesh::after{content:'';position:absolute;bottom:-10%;left:-15%;width:55vw;height:55vw;background:radial-gradient(ellipse,rgba(80,200,255,.09) 0%,transparent 65%);border-radius:50%}
+nav{position:fixed;inset:0 0 auto 0;z-index:500;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:rgba(250,250,248,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.07)}
+.nav-logo{display:flex;align-items:center;gap:9px;font-family:'Outfit',sans-serif;font-weight:600;font-size:14.5px;letter-spacing:-.02em;color:#0D0D0D}
+.nav-mark{width:26px;height:26px;border-radius:6px;background:#0D0D0D;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px}
+.nav-mark span{background:#FAFAF8;border-radius:1px;display:block}
+.nav-mark span:nth-child(2),.nav-mark span:nth-child(3){opacity:.35}
+.nav-center{display:flex;align-items:center;gap:2px;list-style:none}
+.nav-center a{font-size:13.5px;font-weight:400;color:#777;padding:5px 13px;border-radius:20px;transition:color .15s,background .15s;letter-spacing:-.01em}
+.nav-center a:hover{color:#0D0D0D;background:rgba(0,0,0,.05)}
+.nav-right{display:flex;align-items:center;gap:9px}
+.nav-ghost{font-size:13px;font-weight:400;color:#666;border:1px solid rgba(0,0,0,.13);padding:6px 16px;border-radius:20px;transition:all .15s;letter-spacing:-.01em}
+.nav-ghost:hover{border-color:#0D0D0D;color:#0D0D0D}
+.nav-solid{font-size:13px;font-weight:500;color:#0D0D0D;background:#2DFC44;padding:6px 16px;border-radius:20px;transition:background .15s;letter-spacing:-.01em}
+.nav-solid:hover{background:#1DC433}
+.page{display:flex;padding-top:58px}
+.sidebar{position:fixed;top:58px;left:0;width:216px;height:calc(100vh - 58px);overflow-y:auto;border-right:1px solid rgba(0,0,0,.07);background:#FAFAF8;padding:30px 0 60px;z-index:400;display:flex;flex-direction:column}
+.sidebar::-webkit-scrollbar{width:0}
+.sb-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#C0C0C0;padding:0 22px;margin-bottom:16px;display:block}
+.sb-toc{list-style:none;display:flex;flex-direction:column;gap:1px}
+.toc-item a{display:flex;align-items:baseline;gap:10px;padding:8px 22px;font-size:12.5px;font-weight:400;color:#AAA;letter-spacing:-.01em;transition:color .15s,background .15s;position:relative;line-height:1.3}
+.toc-item a:hover{color:#0D0D0D;background:rgba(0,0,0,.03)}
+.toc-n{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#D4D4D4;letter-spacing:.06em;flex-shrink:0;transition:color .15s;min-width:20px}
+.toc-item.active a{color:#0D0D0D;font-weight:500}
+.toc-item.active .toc-n{color:#1DC433}
+.toc-item.active a::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#1DC433;border-radius:0 2px 2px 0}
+.sb-div{height:1px;background:rgba(0,0,0,.06);margin:12px 22px}
+.sb-ver{padding:0 22px;margin-top:auto}
+.sb-ver strong{font-family:'Fraunces',serif;font-size:22px;font-weight:300;letter-spacing:-.04em;color:#0D0D0D;display:block;line-height:1;margin-bottom:4px}
+.sb-ver span{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#C0C0C0;letter-spacing:.1em;text-transform:uppercase}
+.main{margin-left:216px;flex:1;min-width:0}
+.hero{min-height:100vh;padding:0 68px 76px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.hero-eye{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#AAA;margin-bottom:22px;opacity:0;animation:up 1s .1s both;position:relative;z-index:1}
+.hero-title{font-family:'Fraunces',serif;font-size:clamp(46px,7.2vw,88px);font-weight:300;line-height:.97;letter-spacing:-.04em;color:#0D0D0D;max-width:860px;margin-bottom:44px;opacity:0;animation:up 1.1s .2s both;position:relative;z-index:1}
+.hero-title em{font-style:italic;color:#1DC433}
+.hero-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;opacity:0;animation:up 1s .4s both;position:relative;z-index:1}
+.hero-desc{font-size:15px;font-weight:300;color:#666;line-height:1.72;max-width:380px;letter-spacing:-.01em}
+.hero-acts{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.btn-dark{font-size:13.5px;font-weight:500;color:#FAFAF8;background:#0D0D0D;padding:12px 26px;border-radius:22px;transition:background .15s;letter-spacing:-.01em}
+.btn-dark:hover{background:#1f1f1f}
+.btn-outline{font-size:13.5px;font-weight:400;color:#0D0D0D;border:1px solid rgba(0,0,0,.16);padding:12px 26px;border-radius:22px;transition:border-color .15s;letter-spacing:-.01em}
+.btn-outline:hover{border-color:#0D0D0D}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(0,0,0,.07);border-bottom:1px solid rgba(0,0,0,.07)}
+.metric{padding:36px 44px;border-right:1px solid rgba(0,0,0,.07)}
+.metric:last-child{border-right:none}
+.mval{font-family:'Fraunces',serif;font-size:36px;font-weight:300;color:#0D0D0D;letter-spacing:-.05em;line-height:1;display:block;margin-bottom:7px}
+.mlbl{font-size:12.5px;font-weight:300;color:#AAA;letter-spacing:-.01em}
+.section{padding:96px 68px;position:relative}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#AAA;display:block;margin-bottom:18px}
+.stitle{font-family:'Fraunces',serif;font-size:clamp(30px,3.6vw,50px);font-weight:300;letter-spacing:-.04em;line-height:1.06;color:#0D0D0D;margin-bottom:18px}
+.stitle em{font-style:italic;color:#1DC433}
+.sbody{font-size:14.5px;font-weight:300;color:#777;line-height:1.74;max-width:480px;letter-spacing:-.01em}
+.abs-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;margin-top:48px}
+.abs-text p{font-size:15px;font-weight:300;color:#444;line-height:1.82;letter-spacing:-.01em;margin-bottom:18px}
+.abs-text p:last-child{margin-bottom:0}
+.abs-meta{background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;overflow:hidden}
+.meta-head{padding:18px 24px;border-bottom:1px solid rgba(0,0,0,.07);font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#BBB}
+.meta-row{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;border-bottom:1px solid rgba(0,0,0,.05);transition:background .1s}
+.meta-row:last-child{border-bottom:none}
+.meta-row:hover{background:#FAFAFA}
+.mk{font-size:12.5px;font-weight:300;color:#AAA;letter-spacing:-.01em}
+.mv{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1A1A1A;letter-spacing:-.01em}
+.mv.g{color:#1DC433}
+.prob-bg{background:#0D0D0D;position:relative;overflow:hidden}
+.prob-bg .eyebrow{color:rgba(255,255,255,.28)}
+.prob-bg .stitle{color:#FAFAF8}
+.prob-bg .stitle em{color:#2DFC44}
+.prob-bg .sbody{color:rgba(255,255,255,.42)}
+.prob-bg .mesh::before{background:radial-gradient(ellipse,rgba(45,252,68,.10) 0%,transparent 65%)}
+.prob-bg .mesh::after{background:radial-gradient(ellipse,rgba(60,180,255,.07) 0%,transparent 65%)}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:52px;border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden}
+.pcard{padding:40px 36px 44px;border-right:1px solid rgba(255,255,255,.07);transition:background .25s}
+.pcard:last-child{border-right:none}
+.pcard:hover{background:rgba(255,255,255,.03)}
+.pn{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.18);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:28px}
+.pcard h3{font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:rgba(255,255,255,.88);letter-spacing:-.03em;line-height:1.22;margin-bottom:12px}
+.pcard p{font-size:13.5px;font-weight:300;color:rgba(255,255,255,.38);line-height:1.72;letter-spacing:-.01em}
+.pop-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.pop-list{margin-top:32px;border-top:1px solid rgba(0,0,0,.07)}
+.pop-row{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid rgba(0,0,0,.06);align-items:baseline}
+.pop-n{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#C8C8C8;letter-spacing:.1em;min-width:20px;flex-shrink:0;padding-top:1px}
+.pop-row p{font-size:13.5px;font-weight:300;color:#555;line-height:1.6;letter-spacing:-.01em}
+.pop-card{background:#fff;border-radius:18px;box-shadow:0 4px 48px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.05);overflow:hidden}
+.pop-card-head{padding:20px 24px;border-bottom:1px solid #F2F2F0;display:flex;justify-content:space-between;align-items:center}
+.pclbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#BBB}
+.plive{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#1DC433}
+.pdot{width:6px;height:6px;border-radius:50%;background:#1DC433;animation:blink 2.2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.28}}
+.pfield{display:flex;justify-content:space-between;align-items:center;padding:11px 24px;transition:background .1s}
+.pfield:hover{background:#FAFAFA}
+.pkey{font-size:12.5px;font-weight:300;color:#AAA;letter-spacing:-.01em}
+.pval{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1A1A1A;letter-spacing:-.01em}
+.pval.g{color:#1DC433}
+.pfoot{margin:6px 24px 22px;padding:16px 20px;background:#F4FAF7;border-radius:10px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(29,196,51,.12)}
+.psl{font-size:12.5px;font-weight:300;color:#999;letter-spacing:-.01em}
+.psv{font-family:'Fraunces',serif;font-size:34px;font-weight:300;color:#1DC433;letter-spacing:-.06em;line-height:1}
+.pods-head{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:end;margin-bottom:48px}
+.pods-desc{font-size:14.5px;font-weight:300;color:#777;line-height:1.72;letter-spacing:-.01em}
+.pods-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(0,0,0,.07);border-radius:16px;overflow:hidden}
+.pod{padding:40px 36px;border-right:1px solid rgba(0,0,0,.07);border-bottom:1px solid rgba(0,0,0,.07);transition:background .2s}
+.pod:hover{background:#F3F2EF}
+.pod:nth-child(2){border-right:none}
+.pod:nth-child(3){border-bottom:none}
+.pod:nth-child(4){border-right:none;border-bottom:none}
+.pod-tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#C0C0C0;display:block;margin-bottom:14px}
+.pod h3{font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:#0D0D0D;letter-spacing:-.03em;line-height:1.2;margin-bottom:10px}
+.pod p{font-size:13px;font-weight:300;color:#777;line-height:1.7;letter-spacing:-.01em;margin-bottom:20px}
+.pod-roles{display:flex;flex-wrap:wrap;gap:5px}
+.rchip{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#999;border:1px solid rgba(0,0,0,.1);border-radius:20px;padding:3px 11px;letter-spacing:.02em;background:rgba(0,0,0,.02)}
+.how-bg{background:#F2F0EB;border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06)}
+.how-cols{display:grid;grid-template-columns:1fr 1fr;gap:68px;margin-top:52px}
+.hch{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#AAA;display:block;padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.09)}
+.hstep{display:grid;grid-template-columns:30px 1fr;gap:14px;padding:22px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+.hstep:last-child{border-bottom:none}
+.hn{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#CBCBCB;letter-spacing:.08em;padding-top:3px}
+.hb h4{font-size:14.5px;font-weight:500;color:#1A1A1A;letter-spacing:-.02em;margin-bottom:5px;line-height:1.3}
+.hb p{font-size:13px;font-weight:300;color:#888;line-height:1.65;letter-spacing:-.01em}
+.phases-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:52px}
+.phase{border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:36px 32px;background:#fff;transition:border-color .2s}
+.phase:hover{border-color:rgba(0,0,0,.16)}
+.phase.active{background:#0D0D0D;border-color:transparent}
+.phase-n{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#C0C0C0;display:block;margin-bottom:13px}
+.phase.active .phase-n{color:rgba(255,255,255,.22)}
+.ptime{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#1DC433;letter-spacing:.04em;display:block;margin-bottom:12px}
+.phase.active .ptime{color:#2DFC44}
+.phase h3{font-family:'Fraunces',serif;font-size:18px;font-weight:300;color:#0D0D0D;letter-spacing:-.03em;line-height:1.25;margin-bottom:22px}
+.phase.active h3{color:#FAFAF8}
+.pitems{display:flex;flex-direction:column;gap:8px}
+.pitem{font-size:12.5px;font-weight:300;color:#777;letter-spacing:-.01em;padding-left:13px;position:relative;line-height:1.5}
+.pitem::before{content:'';position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:rgba(0,0,0,.14)}
+.phase.active .pitem{color:rgba(255,255,255,.36)}
+.phase.active .pitem::before{background:rgba(255,255,255,.18)}
+.arch-bg{background:#0D0D0D;position:relative;overflow:hidden}
+.amesh{position:absolute;inset:0;pointer-events:none}
+.amesh::before{content:'';position:absolute;top:-20%;right:-10%;width:60vw;height:60vw;background:radial-gradient(ellipse,rgba(45,252,68,.10) 0%,transparent 65%);border-radius:50%}
+.amesh::after{content:'';position:absolute;bottom:-15%;left:-5%;width:50vw;height:50vw;background:radial-gradient(ellipse,rgba(60,180,255,.07) 0%,transparent 65%);border-radius:50%}
+.ari{position:relative}
+.arch-bg .eyebrow{color:rgba(255,255,255,.24)}
+.arch-bg .stitle{color:#FAFAF8}
+.arch-bg .sbody{color:rgba(255,255,255,.38)}
+.agrid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:52px;border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden}
+.acard{padding:40px 36px;border-right:1px solid rgba(255,255,255,.06);transition:background .2s}
+.acard:last-child{border-right:none}
+.acard:hover{background:rgba(255,255,255,.02)}
+.alayer{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.2);display:block;margin-bottom:26px}
+.acard h3{font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:rgba(255,255,255,.88);letter-spacing:-.03em;line-height:1.2;margin-bottom:11px}
+.acard p{font-size:13px;font-weight:300;color:rgba(255,255,255,.36);line-height:1.72;letter-spacing:-.01em;margin-bottom:20px}
+.achips{display:flex;flex-wrap:wrap;gap:5px}
+.achip{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.26);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:3px 11px;letter-spacing:.03em}
+.gov-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;margin-top:48px}
+.gov-text p{font-size:15px;font-weight:300;color:#444;line-height:1.82;letter-spacing:-.01em;margin-bottom:16px}
+.glist{border-top:1px solid rgba(0,0,0,.07)}
+.grow{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid rgba(0,0,0,.06);align-items:baseline}
+.gn{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#C8C8C8;letter-spacing:.1em;min-width:20px;flex-shrink:0}
+.grow p{font-size:13.5px;font-weight:300;color:#555;line-height:1.6;letter-spacing:-.01em}
+.risks-bg{background:#F2F0EB;border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06)}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:52px}
+.rcard{background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;padding:34px 30px;transition:border-color .2s}
+.rcard:hover{border-color:rgba(0,0,0,.14)}
+.rtag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#C0C0C0;display:block;margin-bottom:13px}
+.rcard h3{font-family:'Fraunces',serif;font-size:19px;font-weight:300;color:#0D0D0D;letter-spacing:-.03em;line-height:1.2;margin-bottom:10px}
+.rcard p{font-size:13px;font-weight:300;color:#777;line-height:1.7;letter-spacing:-.01em}
+.cta-wrap{padding:120px 68px 100px;text-align:center;position:relative;overflow:hidden}
+.cta-wrap .mesh::before{top:-30%;left:10%;right:auto;width:80vw;height:80vw;background:radial-gradient(ellipse,rgba(45,252,68,.12) 0%,rgba(45,252,68,.04) 40%,transparent 65%)}
+.cta-wrap .mesh::after{bottom:-20%;right:5%;left:auto;width:50vw;height:50vw;background:radial-gradient(ellipse,rgba(80,200,255,.08) 0%,transparent 60%)}
+.ceye{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#AAA;display:block;margin-bottom:20px;position:relative}
+.ctitle{font-family:'Fraunces',serif;font-size:clamp(42px,6.2vw,80px);font-weight:300;color:#0D0D0D;letter-spacing:-.05em;line-height:.97;margin-bottom:20px;position:relative}
+.ctitle em{font-style:italic;color:#1DC433}
+.csub{font-size:14.5px;font-weight:300;color:#777;max-width:400px;margin:0 auto 42px;line-height:1.72;letter-spacing:-.01em;position:relative}
+.cacts{display:flex;gap:11px;justify-content:center;position:relative}
+footer{border-top:1px solid rgba(0,0,0,.07);padding:30px 68px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.flogo{font-family:'Outfit',sans-serif;font-weight:600;font-size:13.5px;color:#0D0D0D;letter-spacing:-.02em}
+.flinks{display:flex;gap:22px;list-style:none}
+.flinks a{font-size:12.5px;font-weight:300;color:#AAA;letter-spacing:-.01em;transition:color .15s}
+.flinks a:hover{color:#0D0D0D}
+.fcopy{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#C8C8C8;letter-spacing:.06em;text-align:right}
+/* ── KEY FEATURES ── */
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.07);border-radius:14px;overflow:hidden;margin-top:52px}
+.feat{padding:36px 34px;background:#FAFAF8;transition:background .2s}
+.feat:hover{background:#F3F2EF}
+.feat-n{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#C8C8C8;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:14px}
+.feat h3{font-family:'Fraunces',serif;font-size:19px;font-weight:300;color:#0D0D0D;letter-spacing:-.03em;line-height:1.2;margin-bottom:9px}
+.feat p{font-size:13px;font-weight:300;color:#777;line-height:1.7;letter-spacing:-.01em}
+/* ── BUSINESS MODEL ── */
+.biz-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;margin-top:48px}
+.biz-text p{font-size:15px;font-weight:300;color:#444;line-height:1.82;letter-spacing:-.01em;margin-bottom:16px}
+.biz-text p:last-child{margin-bottom:0}
+.rev-list{border-top:1px solid rgba(0,0,0,.07)}
+.rev-row{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid rgba(0,0,0,.06);align-items:start}
+.rev-n{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#C8C8C8;letter-spacing:.1em;min-width:20px;flex-shrink:0;padding-top:3px}
+.rev-body strong{font-size:13.5px;font-weight:500;color:#1A1A1A;letter-spacing:-.01em;display:block;margin-bottom:4px}
+.rev-body p{font-size:13px;font-weight:300;color:#777;line-height:1.62;letter-spacing:-.01em}
+/* ── ONBOARDING ── */
+.onb-bg{background:#F2F0EB;border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06)}
+.onb-intro{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:end;margin-bottom:56px}
+.onb-intro-right{font-size:14.5px;font-weight:300;color:#666;line-height:1.74;letter-spacing:-.01em}
+.onb-tabs{display:flex;gap:2px;margin-bottom:32px}
+.otab{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#AAA;border:1px solid rgba(0,0,0,.12);border-radius:20px;padding:6px 16px;cursor:pointer;transition:all .15s;background:transparent}
+.otab.on{background:#0D0D0D;color:#FAFAF8;border-color:transparent}
+.onb-panels{}
+.onb-panel{display:none}
+.onb-panel.show{display:block}
+.phase-table{width:100%;border-collapse:collapse;border:1px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden}
+.phase-table thead tr{background:#0D0D0D}
+.phase-table th{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);padding:14px 20px;text-align:left;font-weight:400;border-right:1px solid rgba(255,255,255,.07)}
+.phase-table th:last-child{border-right:none}
+.phase-table tbody tr{border-bottom:1px solid rgba(0,0,0,.07);transition:background .15s}
+.phase-table tbody tr:last-child{border-bottom:none}
+.phase-table tbody tr:hover{background:#F3F2EF}
+.phase-table td{padding:16px 20px;font-size:13px;font-weight:300;color:#555;letter-spacing:-.01em;line-height:1.55;vertical-align:top;border-right:1px solid rgba(0,0,0,.06)}
+.phase-table td:last-child{border-right:none}
+.phase-table td:first-child{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#1DC433;letter-spacing:.06em;white-space:nowrap;font-weight:400}
+.apex-card{background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;padding:36px;margin-top:32px}
+.apex-head{display:flex;align-items:baseline;gap:16px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,.07)}
+.apex-label{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#C0C0C0}
+.apex-name{font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:#0D0D0D;letter-spacing:-.03em}
+.apex-body{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.apex-col p{font-size:13.5px;font-weight:300;color:#555;line-height:1.72;letter-spacing:-.01em;margin-bottom:14px}
+.apex-col p:last-child{margin-bottom:0}
+.apex-list{border-top:1px solid rgba(0,0,0,.07)}
+.apex-row{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid rgba(0,0,0,.06);align-items:baseline}
+.apex-row:last-child{border-bottom:none}
+.apex-row span:first-child{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#C8C8C8;min-width:16px;flex-shrink:0;letter-spacing:.08em}
+.apex-row span:last-child{font-size:13px;font-weight:300;color:#555;line-height:1.5;letter-spacing:-.01em}
+@keyframes up{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.17s}.d3{transition-delay:.26s}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:#FAFAF8}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1)}
+
+/* ── MOBILE MENU TOGGLE ── */
+.mob-menu-btn{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-direction:column;gap:5px;z-index:600}
+.mob-menu-btn span{display:block;width:22px;height:1.5px;background:#0D0D0D;transition:all .25s}
+.mob-menu-btn.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+.mob-menu-btn.open span:nth-child(2){opacity:0}
+.mob-menu-btn.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+.mob-toc-overlay{display:none;position:fixed;inset:58px 0 0 0;background:#FAFAF8;z-index:450;overflow-y:auto;padding:24px 0 60px;border-top:1px solid rgba(0,0,0,.07)}
+.mob-toc-overlay.open{display:block}
+
+/* ── TABLET ── */
+@media(max-width:1024px){
+  .nav-center{display:none}
+  .sidebar{width:180px}
+  .main{margin-left:180px}
+  .section{padding:72px 44px}
+  .hero{padding:0 44px 60px}
+  .abs-layout{gap:40px}
+  .biz-layout{gap:40px}
+  .gov-layout{gap:40px}
+  .pop-layout{gap:40px}
+  .onb-intro{gap:40px}
+  .apex-body{gap:24px}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .metric:nth-child(2){border-right:none}
+  .metric:nth-child(3){border-top:1px solid rgba(0,0,0,.07)}
+  .metric:nth-child(4){border-top:1px solid rgba(0,0,0,.07);border-right:none}
+  .pgrid{grid-template-columns:1fr}
+  .pcard{border-right:none;border-bottom:1px solid rgba(0,0,0,.07)}
+  .pcard:last-child{border-bottom:none}
+  .phases-grid{grid-template-columns:1fr}
+  .agrid{grid-template-columns:1fr}
+  .acard{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}
+  .acard:last-child{border-bottom:none}
+  .rgrid{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr}
+  footer{grid-template-columns:1fr 1fr;gap:20px}
+  .fcopy{grid-column:1/-1;text-align:left}
+}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  /* Nav */
+  nav{padding:0 20px}
+  .nav-right{display:none}
+  .mob-menu-btn{display:flex}
+
+  /* Sidebar — hidden on mobile, shown via overlay */
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .page{display:block}
+
+  /* Hero */
+  .hero{min-height:100svh;padding:80px 24px 52px}
+  .hero-title{font-size:clamp(38px,11vw,58px);margin-bottom:32px;line-height:1.0}
+  .hero-bot{flex-direction:column;align-items:flex-start;gap:28px}
+  .hero-desc{max-width:100%;font-size:14px}
+  .hero-acts{flex-direction:column;width:100%;gap:10px}
+  .btn-dark,.btn-outline{width:100%;text-align:center;padding:14px 20px}
+
+  /* Metrics */
+  .metrics{grid-template-columns:1fr 1fr}
+  .metric{padding:24px 20px}
+  .metric:nth-child(2){border-right:none}
+  .metric:nth-child(3){border-top:1px solid rgba(0,0,0,.07);border-right:1px solid rgba(0,0,0,.07)}
+  .metric:nth-child(4){border-top:1px solid rgba(0,0,0,.07);border-right:none}
+  .mval{font-size:28px}
+
+  /* Sections */
+  .section{padding:56px 24px}
+  .stitle{font-size:clamp(26px,8vw,40px)}
+  .sbody{max-width:100%;font-size:14px}
+
+  /* Abstract */
+  .abs-layout{grid-template-columns:1fr;gap:32px;margin-top:32px}
+
+  /* Problem */
+  .pgrid{grid-template-columns:1fr;border-radius:12px}
+  .pcard{border-right:none;border-bottom:1px solid rgba(255,255,255,.07);padding:32px 24px}
+  .pcard:last-child{border-bottom:none}
+
+  /* PoP */
+  .pop-layout{grid-template-columns:1fr;gap:40px}
+
+  /* Pods */
+  .pods-head{grid-template-columns:1fr;gap:16px;margin-bottom:32px}
+  .pods-grid{grid-template-columns:1fr;border-radius:12px}
+  .pod{border-right:none;border-bottom:1px solid rgba(0,0,0,.07);padding:32px 24px}
+  .pod:nth-child(2){border-right:none}
+  .pod:nth-child(3){border-bottom:1px solid rgba(0,0,0,.07)}
+  .pod:nth-child(4){border-right:none;border-bottom:none}
+
+  /* How it works */
+  .how-cols{grid-template-columns:1fr;gap:40px}
+
+  /* Features */
+  .feat-grid{grid-template-columns:1fr}
+  .feat{padding:28px 24px}
+
+  /* Business model */
+  .biz-layout{grid-template-columns:1fr;gap:32px;margin-top:32px}
+
+  /* Phases */
+  .phases-grid{grid-template-columns:1fr}
+
+  /* Architecture */
+  .agrid{grid-template-columns:1fr;border-radius:12px}
+  .acard{border-right:none;border-bottom:1px solid rgba(255,255,255,.06);padding:32px 24px}
+  .acard:last-child{border-bottom:none}
+
+  /* Onboarding */
+  .onb-intro{grid-template-columns:1fr;gap:20px;margin-bottom:32px}
+  .onb-tabs{flex-direction:column;gap:8px}
+  .otab{text-align:left;border-radius:10px;padding:10px 16px}
+  .phase-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;border-radius:10px}
+  .apex-body{grid-template-columns:1fr;gap:24px}
+  .apex-card{padding:24px}
+
+  /* Governance */
+  .gov-layout{grid-template-columns:1fr;gap:32px;margin-top:32px}
+
+  /* Risks */
+  .rgrid{grid-template-columns:1fr}
+
+  /* CTA */
+  .cta-wrap{padding:72px 24px 64px}
+  .ctitle{font-size:clamp(36px,11vw,56px)}
+  .csub{font-size:14px;max-width:100%}
+  .cacts{flex-direction:column;align-items:center}
+  .cacts .btn-dark,.cacts .btn-outline{width:100%;max-width:320px;text-align:center}
+
+  /* Footer */
+  footer{padding:28px 24px;grid-template-columns:1fr;gap:20px;text-align:center}
+  .flinks{justify-content:center;flex-wrap:wrap;gap:16px}
+  .fcopy{text-align:center}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="#cover" class="nav-logo">
+    <img src="logo.png" alt="Work3 Labs" style="height:28px;display:block;">
+  </a>
+  <ul class="nav-center">
+    <li><a href="#cover">Whitepaper</a></li>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#solution">Solution</a></li>
+    <li><a href="#pods">Pods</a></li>
+    <li><a href="#phases">Roadmap</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="#" class="nav-ghost">Download PDF</a>
+    <a href="#" class="nav-solid">Join Waitlist</a>
+  </div>
+  <button class="mob-menu-btn" id="mobBtn" onclick="toggleMob()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mob-toc-overlay" id="mobOverlay">
+  <span class="sb-label" style="padding:0 24px;margin-bottom:16px;display:block">Contents</span>
+  <ul class="sb-toc" style="padding:0" onclick="closeMob()">
+    <li class="toc-item" data-sec="cover"><a href="#cover"><span class="toc-n">—</span>Abstract</a></li>
+    <li class="toc-item" data-sec="intro"><a href="#intro"><span class="toc-n">01</span>Introduction</a></li>
+    <li class="toc-item" data-sec="problem"><a href="#problem"><span class="toc-n">02</span>The Problem</a></li>
+    <li class="toc-item" data-sec="solution"><a href="#solution"><span class="toc-n">03</span>The Solution</a></li>
+    <div class="sb-div"></div>
+    <li class="toc-item" data-sec="pop"><a href="#pop"><span class="toc-n">04</span>Proof-of-Performance</a></li>
+    <li class="toc-item" data-sec="pods"><a href="#pods"><span class="toc-n">05</span>Talent Pods</a></li>
+    <li class="toc-item" data-sec="how"><a href="#how"><span class="toc-n">06–07</span>How It Works</a></li>
+    <li class="toc-item" data-sec="features"><a href="#features"><span class="toc-n">08</span>Key Features</a></li>
+    <div class="sb-div"></div>
+    <li class="toc-item" data-sec="arch"><a href="#arch"><span class="toc-n">09</span>Architecture</a></li>
+    <li class="toc-item" data-sec="bizmodel"><a href="#bizmodel"><span class="toc-n">10</span>Business Model</a></li>
+    <li class="toc-item" data-sec="phases"><a href="#phases"><span class="toc-n">11</span>Roadmap</a></li>
+    <li class="toc-item" data-sec="onboarding"><a href="#onboarding"><span class="toc-n">12</span>Onboarding</a></li>
+    <div class="sb-div"></div>
+    <li class="toc-item" data-sec="governance"><a href="#governance"><span class="toc-n">13</span>Governance</a></li>
+    <li class="toc-item" data-sec="risks"><a href="#risks"><span class="toc-n">14</span>Risks</a></li>
+    <li class="toc-item" data-sec="conclusion"><a href="#conclusion"><span class="toc-n">15</span>Conclusion</a></li>
+  </ul>
+</div>
+<div class="page">
+  <aside class="sidebar">
+    <span class="sb-label">Contents</span>
+    <ul class="sb-toc">
+      <li class="toc-item" data-sec="cover"><a href="#cover"><span class="toc-n">—</span>Abstract</a></li>
+      <li class="toc-item" data-sec="intro"><a href="#intro"><span class="toc-n">01</span>Introduction</a></li>
+      <li class="toc-item" data-sec="problem"><a href="#problem"><span class="toc-n">02</span>The Problem</a></li>
+      <li class="toc-item" data-sec="solution"><a href="#solution"><span class="toc-n">03</span>The Solution</a></li>
+      <div class="sb-div"></div>
+      <li class="toc-item" data-sec="pop"><a href="#pop"><span class="toc-n">04</span>Proof-of-Performance</a></li>
+      <li class="toc-item" data-sec="pods"><a href="#pods"><span class="toc-n">05</span>Talent Pods</a></li>
+      <li class="toc-item" data-sec="how"><a href="#how"><span class="toc-n">06–07</span>How It Works</a></li>
+      <li class="toc-item" data-sec="features"><a href="#features"><span class="toc-n">08</span>Key Features</a></li>
+      <div class="sb-div"></div>
+      <li class="toc-item" data-sec="arch"><a href="#arch"><span class="toc-n">09</span>Architecture</a></li>
+      <li class="toc-item" data-sec="bizmodel"><a href="#bizmodel"><span class="toc-n">10</span>Business Model</a></li>
+      <li class="toc-item" data-sec="phases"><a href="#phases"><span class="toc-n">11</span>Roadmap</a></li>
+      <li class="toc-item" data-sec="onboarding"><a href="#onboarding"><span class="toc-n">12</span>Onboarding Framework</a></li>
+      <div class="sb-div"></div>
+      <li class="toc-item" data-sec="governance"><a href="#governance"><span class="toc-n">13</span>Governance</a></li>
+      <li class="toc-item" data-sec="risks"><a href="#risks"><span class="toc-n">14</span>Risks</a></li>
+      <li class="toc-item" data-sec="conclusion"><a href="#conclusion"><span class="toc-n">15</span>Conclusion</a></li>
+    </ul>
+    <div class="sb-div"></div>
+    <div class="sb-ver"><strong>v1.0</strong><span>Whitepaper</span></div>
+  </aside>
+  <main class="main">
+    <section class="hero" id="cover">
+      <div class="mesh"></div>
+      <div class="hero-eye">Work3 Labs &mdash; Decentralized Execution Infrastructure for Web3 Teams</div>
+      <h1 class="hero-title">The execution<br>layer Web3<br>has been <em>missing.</em></h1>
+      <div class="hero-bot">
+        <p class="hero-desc">Work3 Labs is a team-based execution environment where contributors form structured pods, deliver verified work, and build on-chain reputation that compounds over time.</p>
+        <div class="hero-acts">
+          <a href="#intro" class="btn-dark">Read Whitepaper</a>
+          <a href="#" class="btn-outline">Download PDF</a>
+        </div>
+      </div>
+    </section>
+    <div class="metrics reveal">
+      <div class="metric"><span class="mval">3</span><span class="mlbl">Launch phases</span></div>
+      <div class="metric"><span class="mval">Pod</span><span class="mlbl">Team-first execution</span></div>
+      <div class="metric"><span class="mval">PoP</span><span class="mlbl">Proof-of-Performance</span></div>
+      <div class="metric"><span class="mval">0&rarr;1</span><span class="mlbl">Resume to on-chain rep</span></div>
+    </div>
+    <section class="section" id="intro">
+      <span class="eyebrow reveal">Section 01 &mdash; Abstract</span>
+      <h2 class="stitle reveal">What is Work3 Labs?</h2>
+      <div class="abs-layout">
+        <div class="abs-text reveal">
+          <p>Web3 has unlocked new models of ownership, governance, and coordination. However, while capital and innovation continue to grow, execution remains one of the largest bottlenecks. Projects struggle to find reliable contributors, form effective teams, and measure real performance.</p>
+          <p>Work3 Labs is designed to solve this execution gap. It provides infrastructure where contributors organize into structured teams, execute real work, and generate verifiable performance records that improve future coordination.</p>
+          <p>Rather than functioning as a traditional job marketplace, Work3 Labs focuses on execution, accountability, and performance visibility &mdash; making on-chain reputation a first-class primitive of the Web3 ecosystem.</p>
+        </div>
+        <div class="abs-meta reveal d2">
+          <div class="meta-head">Document Metadata</div>
+          <div class="meta-row"><span class="mk">Title</span><span class="mv">Work3 Labs Whitepaper</span></div>
+          <div class="meta-row"><span class="mk">Version</span><span class="mv g">v1.0</span></div>
+          <div class="meta-row"><span class="mk">Category</span><span class="mv">Execution Infrastructure</span></div>
+          <div class="meta-row"><span class="mk">Team Model</span><span class="mv">Talent Pods</span></div>
+          <div class="meta-row"><span class="mk">Rep. Standard</span><span class="mv">Proof-of-Performance</span></div>
+          <div class="meta-row"><span class="mk">Status</span><span class="mv g">Phase 1 &mdash; Active</span></div>
+        </div>
+      </div>
+    </section>
+    <div class="prob-bg section" id="problem">
+      <div class="mesh"></div>
+      <div style="position:relative;z-index:1">
+        <span class="eyebrow reveal">Section 03 &mdash; The Problem</span>
+        <h2 class="stitle reveal">Web3 has capital.<br>It lacks <em>execution.</em></h2>
+        <p class="sbody reveal">Projects struggle to find reliable contributors, form effective teams, and measure real performance beyond resumes and informal social signals.</p>
+        <div class="pgrid">
+          <div class="pcard reveal"><span class="pn">01</span><h3>Fragmented Talent Discovery</h3><p>Most Web3 hiring relies on Twitter presence, static resumes, and informal referrals &mdash; signals that do not reliably predict execution quality or team effectiveness.</p></div>
+          <div class="pcard reveal d1"><span class="pn">02</span><h3>No Verifiable Performance Data</h3><p>Even when work is completed, outcomes are rarely standardized, comparable, or persistently recorded. This leads to repeated hiring mistakes and poor capital efficiency.</p></div>
+          <div class="pcard reveal d2"><span class="pn">03</span><h3>Individual-Centric Work Models</h3><p>Modern Web3 work requires cross-functional teams with shared accountability. Most platforms still optimize for individuals, not coordinated execution units.</p></div>
+        </div>
+      </div>
+    </div>
+    <section class="section" id="solution">
+      <span class="eyebrow reveal">Section 04 &mdash; The Solution</span>
+      <h2 class="stitle reveal">Proof-of-Performance</h2>
+    </section>
+    <section class="section" id="pop" style="padding-top:0">
+      <div class="pop-layout">
+        <div class="reveal">
+          <p class="sbody" style="margin-bottom:0">PoP is a structured record of completed work &mdash; not a resume, not a credential, not a token by default. Generated through real execution and accumulates over time to form a verifiable on-chain identity.</p>
+          <div class="pop-list">
+            <div class="pop-row"><span class="pop-n">01</span><p>What work was performed, by whom, and under what conditions</p></div>
+            <div class="pop-row"><span class="pop-n">02</span><p>Measurable outcomes tied to scoped work mandates</p></div>
+            <div class="pop-row"><span class="pop-n">03</span><p>Feeds AI-powered matching and reputation scoring systems</p></div>
+            <div class="pop-row"><span class="pop-n">04</span><p>Portable and composable across Phase 3 ecosystem integrations</p></div>
+          </div>
+        </div>
+        <div class="reveal d2">
+          <div class="pop-card">
+            <div class="pop-card-head"><span class="pclbl">Proof-of-Performance Record</span><div class="plive"><div class="pdot"></div>Verified</div></div>
+            <div style="padding:4px 0">
+              <div class="pfield"><span class="pkey">Contributor</span><span class="pval">0x4a2f...8b91</span></div>
+              <div class="pfield"><span class="pkey">Pod</span><span class="pval">Growth Alpha #12</span></div>
+              <div class="pfield"><span class="pkey">Work Type</span><span class="pval">Community Growth</span></div>
+              <div class="pfield"><span class="pkey">Milestones</span><span class="pval g">5 / 5</span></div>
+              <div class="pfield"><span class="pkey">Delivery</span><span class="pval g">On Schedule</span></div>
+              <div class="pfield"><span class="pkey">Chain Anchor</span><span class="pval g">Confirmed</span></div>
+            </div>
+            <div class="pfoot"><span class="psl">Reputation Score</span><span class="psv">94.8</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="pods" style="padding-top:0">
+      <div class="pods-head">
+        <div class="reveal"><span class="eyebrow">Section 06 &mdash; Talent Pods</span><h2 class="stitle">Teams,<br>not individuals.</h2></div>
+        <div class="reveal d1"><p class="pods-desc">Talent Pods are small, structured execution units formed to deliver specific categories of work &mdash; evaluated on collective output, not individual skill alone.</p></div>
+      </div>
+      <div class="pods-grid reveal">
+        <div class="pod"><span class="pod-tag">Growth / Community</span><h3>Growth Alpha Pod</h3><p>Executes community growth, social strategy, and ecosystem expansion for Web3 protocols. Persistent pod with 14 completed engagements and verified PoP records.</p><div class="pod-roles"><span class="rchip">Community Lead</span><span class="rchip">Content Strategist</span><span class="rchip">Growth Analyst</span><span class="rchip">Social Manager</span></div></div>
+        <div class="pod"><span class="pod-tag">Technical / Infrastructure</span><h3>DevOps Execution Pod</h3><p>Handles infrastructure, smart contract deployment, and technical delivery. Specializes in rapid scoped engagements with on-chain deliverable verification.</p><div class="pod-roles"><span class="rchip">Lead Engineer</span><span class="rchip">Smart Contract Dev</span><span class="rchip">DevOps</span><span class="rchip">QA</span></div></div>
+        <div class="pod"><span class="pod-tag">Creative / Design</span><h3>Brand and Design Pod</h3><p>Delivers visual identity, UX design, and brand strategy for protocols and DAOs. Project-specific formation with portfolio-backed Proof-of-Performance records.</p><div class="pod-roles"><span class="rchip">Art Director</span><span class="rchip">UI Designer</span><span class="rchip">Motion Designer</span></div></div>
+        <div class="pod"><span class="pod-tag">Strategy / GTM</span><h3>Go-To-Market Pod</h3><p>Executes GTM strategy, tokenomics advisory, and ecosystem partnerships. Matched via performance-weighted scoring from prior execution records.</p><div class="pod-roles"><span class="rchip">Strategist</span><span class="rchip">BD Lead</span><span class="rchip">Research Analyst</span><span class="rchip">Writer</span></div></div>
+      </div>
+    </section>
+    <div class="how-bg section" id="how">
+      <span class="eyebrow reveal">Section 07 &mdash; How It Works</span>
+      <h2 class="stitle reveal">From onboarding to <em>execution.</em></h2>
+      <div class="how-cols">
+        <div class="reveal">
+          <span class="hch">For Talents &mdash; Contribute</span>
+          <div class="hstep"><span class="hn">01</span><div class="hb"><h4>Create a Contributor Profile</h4><p>Select your skill domain. No resume required at Phase 2 and beyond.</p></div></div>
+          <div class="hstep"><span class="hn">02</span><div class="hb"><h4>Join or Get Matched to a Pod</h4><p>AI-assisted matching based on skills, availability, and prior PoP records.</p></div></div>
+          <div class="hstep"><span class="hn">03</span><div class="hb"><h4>Execute Real Scoped Work</h4><p>Complete tasks within defined pod mandates. Receive structured evaluation on every delivery.</p></div></div>
+          <div class="hstep"><span class="hn">04</span><div class="hb"><h4>Build Compounding Reputation</h4><p>PoP records generated on completion. Scores update. Higher-impact work unlocks automatically.</p></div></div>
+        </div>
+        <div class="reveal d2">
+          <span class="hch">For Projects &mdash; Deploy</span>
+          <div class="hstep"><span class="hn">01</span><div class="hb"><h4>Define Scope and Success Criteria</h4><p>Set work scope, required roles, timeline, and measurable outcomes.</p></div></div>
+          <div class="hstep"><span class="hn">02</span><div class="hb"><h4>Get Matched to the Right Pod</h4><p>Work3 Labs matches your project to the highest-performing pod for your needs.</p></div></div>
+          <div class="hstep"><span class="hn">03</span><div class="hb"><h4>Track Execution Progress</h4><p>Full visibility into milestone completion and pod performance throughout.</p></div></div>
+          <div class="hstep"><span class="hn">04</span><div class="hb"><h4>Evaluate and Re-Engage</h4><p>Outcomes reviewed on delivery. PoP records generated. Re-engage proven pods.</p></div></div>
+        </div>
+      </div>
+    </div>
+    <section class="section" id="features">
+      <span class="eyebrow reveal">Section 08 &mdash; Key Features</span>
+      <h2 class="stitle reveal">Built-in tools for <em>every layer.</em></h2>
+      <p class="sbody reveal">Work3 Labs ships four core capabilities that power the full execution lifecycle — from team formation through to analytics and reputation.</p>
+      <div class="feat-grid">
+        <div class="feat reveal">
+          <span class="feat-n">8.1</span>
+          <h3>Pod Formation Engine</h3>
+          <p>Structured team creation based on skill domains, availability, and performance history. Supports both manual curation in Phase 1 and AI-assisted matching from Phase 2 onward. Ensures role coverage and cross-functional balance before any pod is deployed to a project.</p>
+        </div>
+        <div class="feat reveal d1">
+          <span class="feat-n">8.2</span>
+          <h3>Execution Tracking</h3>
+          <p>Real-time milestone and deliverable tracking across all active pod engagements. Projects get full visibility into completion rates, delivery timelines, and output quality. Every tracked event feeds directly into PoP record generation at completion.</p>
+        </div>
+        <div class="feat reveal">
+          <span class="feat-n">8.3</span>
+          <h3>Reputation System</h3>
+          <p>Aggregates PoP data across all completed work into interpretable reputation signals for both individual contributors and pods. Scores are role-weighted, time-adjusted, and used to gate access to higher-impact opportunities as the platform scales.</p>
+        </div>
+        <div class="feat reveal d1">
+          <span class="feat-n">8.4</span>
+          <h3>Analytics Dashboard</h3>
+          <p>Provides layered insights for all participants. Contributors see their performance trajectory and improvement areas. Pods access internal analytics on collective output. Projects gain transparency into pod track records and historical delivery quality before engaging.</p>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="bizmodel">
+      <span class="eyebrow reveal">Section 10 &mdash; Business Model</span>
+      <h2 class="stitle reveal">Revenue that scales with <em>execution.</em></h2>
+      <div class="biz-layout">
+        <div class="biz-text reveal">
+          <p>Work3 Labs generates revenue through a model that aligns platform incentives directly with execution volume and ecosystem growth. The more real work gets done, the more the platform earns — creating a feedback loop between quality execution and sustainable growth.</p>
+          <p>As the platform matures across phases, revenue streams diversify from managed engagements in Phase 1 toward subscription products and protocol-level partnerships in Phases 2 and 3.</p>
+        </div>
+        <div class="reveal d1">
+          <div class="rev-list">
+            <div class="rev-row">
+              <span class="rev-n">01</span>
+              <div class="rev-body">
+                <strong>Project Execution Fees</strong>
+                <p>A fee applied to each project engagement facilitated through Work3 Labs. Scales directly with execution volume across pods and projects on the platform.</p>
+              </div>
+            </div>
+            <div class="rev-row">
+              <span class="rev-n">02</span>
+              <div class="rev-body">
+                <strong>Subscription Access</strong>
+                <p>Advanced analytics, performance reporting, and priority matching tools offered to contributors, pods, and projects under tiered subscription plans from Phase 2 onward.</p>
+              </div>
+            </div>
+            <div class="rev-row">
+              <span class="rev-n">03</span>
+              <div class="rev-body">
+                <strong>Enterprise and DAO Partnerships</strong>
+                <p>Custom integrations, white-label execution infrastructure, and long-term partnership agreements with Web3 protocols, DAOs, and ecosystem funds at scale.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="phases">
+      <span class="eyebrow reveal">Section 11 &mdash; Launch Roadmap</span>
+      <h2 class="stitle reveal">Built for trust, scaled for the <em>ecosystem.</em></h2>
+      <p class="sbody reveal">Each phase ensures data quality before automation, accountability before decentralization, and product value before tokenization.</p>
+      <div class="phases-grid">
+        <div class="phase active reveal"><span class="phase-n">Phase 01</span><span class="ptime">0 &ndash; 6 Months</span><h3>Foundation and Controlled Execution</h3><div class="pitems"><div class="pitem">Curated talents and partner projects</div><div class="pitem">Manual pod assignment</div><div class="pitem">Initial PoP generation</div><div class="pitem">Basic reputation scoring</div><div class="pitem">Human-validated matching</div><div class="pitem">Off-chain performance storage</div></div></div>
+        <div class="phase reveal d1"><span class="phase-n">Phase 02</span><span class="ptime">6 &ndash; 18 Months</span><h3>Open Platform and Intelligence Layer</h3><div class="pitems"><div class="pitem">Open talent onboarding</div><div class="pitem">Persistent pod identities</div><div class="pitem">AI-assisted matching</div><div class="pitem">Performance-based progression</div><div class="pitem">Advanced analytics dashboards</div><div class="pitem">API access for partners</div></div></div>
+        <div class="phase reveal d2"><span class="phase-n">Phase 03</span><span class="ptime">18+ Months</span><h3>Ecosystem and Decentralization Layer</h3><div class="pitems"><div class="pitem">Portable reputation identity</div><div class="pitem">On-chain reputation proofs</div><div class="pitem">Cross-platform PoP recognition</div><div class="pitem">Governance participation</div><div class="pitem">Dispute resolution frameworks</div><div class="pitem">Optional staking mechanisms</div></div></div>
+      </div>
+    </section>
+    <div class="arch-bg section" id="arch">
+      <div class="amesh"></div>
+      <div class="ari">
+        <span class="eyebrow reveal">Section 09 &mdash; Technology Architecture</span>
+        <h2 class="stitle reveal">Infrastructure built to scale.</h2>
+        <p class="sbody reveal">Off-chain execution data for scalability. On-chain signals for integrity. AI systems that compound intelligence from every completed engagement.</p>
+        <div class="agrid">
+          <div class="acard reveal"><span class="alayer">Layer 01</span><h3>Data Layer</h3><p>Execution data stored off-chain for scalability. Select performance signals anchored on-chain for integrity where required by the protocol.</p><div class="achips"><span class="achip">Off-chain Storage</span><span class="achip">On-chain Anchoring</span><span class="achip">Integrity Proofs</span></div></div>
+          <div class="acard reveal d1"><span class="alayer">Layer 02</span><h3>AI and Matching</h3><p>Rule-based filters for eligibility. Performance-weighted algorithms. Continuous learning from real execution outcomes across the network.</p><div class="achips"><span class="achip">Collaborative Filtering</span><span class="achip">Role Weighting</span><span class="achip">ML Feedback Loop</span></div></div>
+          <div class="acard reveal d2"><span class="alayer">Layer 03</span><h3>Integrations</h3><p>Native wallet connectivity, DAO tooling integration, and project management hooks for seamless execution tracking and reporting.</p><div class="achips"><span class="achip">Wallets</span><span class="achip">DAO Tooling</span><span class="achip">PM Tools</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="onb-bg section" id="onboarding">
+      <span class="eyebrow reveal">Section 12 &mdash; Onboarding Framework</span>
+      <h2 class="stitle reveal">Earn access through <em>execution.</em></h2>
+      <div class="onb-intro">
+        <div class="reveal">
+          <p class="sbody" style="max-width:100%">Work3 Labs onboarding is designed to replace resumes, unverifiable claims, and credential signaling with progressive access based on demonstrated execution. Onboarding differs by participant type and evolves across phases.</p>
+        </div>
+        <div class="onb-intro-right reveal d1">
+          Talents earn access through outcomes, not gatekeepers. Projects reduce risk by hiring performance, not promises. The system improves as more work is completed. Onboarding is not a gate — it is the first execution loop.
+        </div>
+      </div>
+      <div class="onb-tabs reveal">
+        <button class="otab on" onclick="showTab('talents',this)">12.1 — Talent Onboarding</button>
+        <button class="otab" onclick="showTab('projects',this)">12.2 — Project Onboarding</button>
+        <button class="otab" onclick="showTab('apex',this)">12.3 — Apex Aqademia</button>
+      </div>
+      <div class="onb-panels reveal">
+
+        <div class="onb-panel show" id="tab-talents">
+          <table class="phase-table">
+            <thead>
+              <tr>
+                <th>Phase</th>
+                <th>How Talents Onboard</th>
+                <th>What Talents Unlock</th>
+                <th>Key Shift</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Phase 1<br>0–6 Mo</td>
+                <td>Application or invitation. Skill domain selection (marketing, devops, community). Placement into supervised execution tasks or pods. Completion of real work under defined scopes.</td>
+                <td>Contributor profile. Eligibility for pod participation. Initial reputation score. Access to limited execution opportunities.</td>
+                <td>Early PoP establishes trust without relying on resumes or prior credentials.</td>
+              </tr>
+              <tr>
+                <td>Phase 2<br>6–18 Mo</td>
+                <td>Open registration. Optional Apex Aqademia learning paths. Entry into starter pods or scoped tasks. Performance-based progression through execution history.</td>
+                <td>Reputation-based access to higher-value projects. Pod persistence and leadership roles. Visibility into personal performance metrics. Career progression driven by execution history.</td>
+                <td>Talents are no longer "accepted" by gatekeepers — they earn access through outcomes.</td>
+              </tr>
+              <tr>
+                <td>Phase 3<br>18+ Mo</td>
+                <td>Continuous participation. Cross-ecosystem work history. Optional on-chain reputation proofs for portability.</td>
+                <td>Portable execution identity. Governance participation. Long-term reputation compounding across platforms.</td>
+                <td>Execution identity becomes durable infrastructure, not a platform-specific score.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="onb-panel" id="tab-projects">
+          <table class="phase-table">
+            <thead>
+              <tr>
+                <th>Phase</th>
+                <th>How Projects Onboard</th>
+                <th>What Projects Get</th>
+                <th>Goal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Phase 1<br>Managed</td>
+                <td>Direct engagement through Apex Agency or Work3 Labs. Manual scoping of execution needs. Human-curated pod assignment. Structured delivery and review process.</td>
+                <td>Guaranteed execution oversight. Transparent delivery metrics. Low-risk experimentation with pods and PoP-verified contributors.</td>
+                <td>Control scope and quality during the data-building phase.</td>
+              </tr>
+              <tr>
+                <td>Phase 2<br>Self-serve</td>
+                <td>Self-serve project creation. Clear scope and success criteria definition. Automated pod recommendations. Performance-based matching against verified track records.</td>
+                <td>Faster team formation. Predictable execution quality. Ability to repeat-engage with proven pods.</td>
+                <td>Reduce friction and scale usage across the ecosystem.</td>
+              </tr>
+              <tr>
+                <td>Phase 3<br>Protocol</td>
+                <td>API or protocol-level integration. Access to ecosystem-wide reputation signals. Optional on-chain verification of engagement outcomes.</td>
+                <td>Reduced coordination overhead. Trust-minimized execution. Cross-platform talent discovery without intermediaries.</td>
+                <td>Make execution trust composable infrastructure.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="onb-panel" id="tab-apex">
+          <div class="apex-card">
+            <div class="apex-head">
+              <span class="apex-label">12.3</span>
+              <span class="apex-name">Apex Aqademia</span>
+            </div>
+            <div class="apex-body">
+              <div class="apex-col">
+                <p>Apex Aqademia functions as a pre-execution and re-skilling entry point — not a standalone education platform. It is directly integrated into the Work3 Labs onboarding pipeline and tied to pod role requirements.</p>
+                <p>It enables skill validation before execution, faster onboarding for new talents, and continuous upskilling that maps to live pod needs rather than generic curricula.</p>
+                <p>The two entry paths are intentionally flexible: through Aqademia first, then into Work3 Labs; or directly into Work3 Labs, with Aqademia used for progression. Learning is always tied to work — never detached from it.</p>
+              </div>
+              <div class="apex-col">
+                <div class="apex-list">
+                  <div class="apex-row"><span>—</span><span>Skill validation before pod participation</span></div>
+                  <div class="apex-row"><span>—</span><span>Faster onboarding pipeline for new talents</span></div>
+                  <div class="apex-row"><span>—</span><span>Continuous upskilling tied to pod requirements</span></div>
+                  <div class="apex-row"><span>—</span><span>Entry path: Aqademia first, then Work3 Labs</span></div>
+                  <div class="apex-row"><span>—</span><span>Or: Work3 Labs first, then Aqademia for progression</span></div>
+                  <div class="apex-row"><span>—</span><span>Operated by Apex Agency as a supporting layer</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <section class="section" id="governance">
+      <span class="eyebrow reveal">Section 13 &mdash; Governance and Oversight</span>
+      <h2 class="stitle reveal">Accountable by <em>design.</em></h2>
+      <div class="gov-layout">
+        <div class="gov-text reveal">
+          <p>Work3 Labs governance evolves alongside the platform. In early phases, oversight is human-led and transparent. As the platform matures, governance mechanisms shift toward community participation and on-chain coordination.</p>
+          <p>The goal is not to decentralize prematurely, but to build the infrastructure of trust that makes meaningful decentralization possible &mdash; starting from verifiable execution records.</p>
+        </div>
+        <div class="reveal d2">
+          <div class="glist">
+            <div class="grow"><span class="gn">01</span><p>Platform policies &mdash; rules for pod formation, task scoping, and outcome evaluation</p></div>
+            <div class="grow"><span class="gn">02</span><p>Dispute resolution &mdash; structured processes for contested deliverables or reputation challenges</p></div>
+            <div class="grow"><span class="gn">03</span><p>Contributor participation &mdash; mechanisms for earning governance weight through execution history</p></div>
+            <div class="grow"><span class="gn">04</span><p>Weight parameters &mdash; community input on how PoP scores map to reputation signals</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="risks-bg section" id="risks">
+      <span class="eyebrow reveal">Section 14 &mdash; Risks and Mitigation</span>
+      <h2 class="stitle reveal">Known risks, clear <em>responses.</em></h2>
+      <div class="rgrid">
+        <div class="rcard reveal"><span class="rtag">Risk 01</span><h3>Quality Control</h3><p>Managed through structured evaluation frameworks, human review in Phase 1, and progressive automation as data quality improves.</p></div>
+        <div class="rcard reveal d1"><span class="rtag">Risk 02</span><h3>Contributor Churn</h3><p>Mitigated through reputation progression systems that reward long-term participation and make consistent contributors increasingly valuable.</p></div>
+        <div class="rcard reveal d2"><span class="rtag">Risk 03</span><h3>Market Volatility</h3><p>Addressed through diversified project sources, multi-sector pod coverage, and a model that scales with execution volume rather than token price.</p></div>
+      </div>
+    </div>
+    <div class="cta-wrap" id="conclusion">
+      <div class="mesh"></div>
+      <span class="ceye reveal">Section 15 &mdash; Conclusion</span>
+      <h2 class="ctitle reveal">Ready to<br><em>execute?</em></h2>
+      <p class="csub reveal">Work3 Labs provides the execution infrastructure Web3 has lacked. Join Phase 1 and build your on-chain reputation from day one.</p>
+      <div class="cacts reveal d1">
+        <a href="#" class="btn-dark">Apply as Talent</a>
+        <a href="#" class="btn-outline">Submit a Project</a>
+      </div>
+    </div>
+    <footer>
+      <a href="#" class="flogo"><img src="logo.png" alt="Work3 Labs" style="height:24px;display:block;"></a>
+      <ul class="flinks"><li><a href="#">Whitepaper</a></li><li><a href="#">Documentation</a></li><li><a href="#">Twitter</a></li><li><a href="#">Discord</a></li><li><a href="#">Telegram</a></li></ul>
+      <span class="fcopy">Work3 Labs v1.0 &mdash; 2025</span>
+    </footer>
+  </main>
+</div>
+<script>
+const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.06,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const secs=['cover','intro','problem','solution','pop','pods','how','features','arch','bizmodel','phases','onboarding','governance','risks','conclusion'];
+function setActive(id){
+  document.querySelectorAll('.toc-item').forEach(el=>el.classList.remove('active'));
+  const t=document.querySelector('.toc-item[data-sec="'+id+'"]');
+  if(t){t.classList.add('active');t.scrollIntoView({block:'nearest',behavior:'smooth'})}
+}
+const els=secs.map(id=>document.getElementById(id)).filter(Boolean);
+const sio=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)setActive(x.target.id)})},{threshold:.15,rootMargin:'-10% 0px -70% 0px'});
+els.forEach(el=>sio.observe(el));
+setActive('cover');
+function toggleMob(){
+  const btn=document.getElementById('mobBtn');
+  const ov=document.getElementById('mobOverlay');
+  btn.classList.toggle('open');
+  ov.classList.toggle('open');
+  document.body.style.overflow=ov.classList.contains('open')?'hidden':'';
+}
+function closeMob(){
+  document.getElementById('mobBtn').classList.remove('open');
+  document.getElementById('mobOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function showTab(name,btn){
+  document.querySelectorAll('.onb-panel').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.otab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+name).classList.add('show');
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>
